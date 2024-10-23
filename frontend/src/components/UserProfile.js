@@ -19,14 +19,9 @@ const UserProfile = ({ email }) => {
             try {
                 const response = await fetch(`http://localhost:8000/api/profile/${email}/`);
                 const data = await response.json();
-                console.log(data.education)
+                console.log(data.address)
                 setUserData({
-                    address: {
-                        address_line_1: data.address_line_1,
-                        city: data.city,
-                        state: data.state,
-                        pincode: data.pincode
-                    },
+                    address: data.address,
                     certificates: data.certificates,
                     experiences: data.experiences,
                     projects: data.projects,

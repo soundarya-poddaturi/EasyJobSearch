@@ -1,115 +1,109 @@
-from django.contrib.auth.models import User
-from rest_framework.views import APIView
-from rest_framework.response import Response
+from django.shortcuts import render, get_object_or_404, redirect
+from django.http import JsonResponse, HttpResponse
+from django.contrib.auth import authenticate, login
+from django.views import View
+from .models import StudentUser, Address, Certificate, Experience, Project, Education
 from django.contrib.auth.hashers import make_password
 from rest_framework.permissions import AllowAny
-from django.contrib.auth import authenticate
+from rest_framework.views import APIView
+from rest_framework.response import Response
 from rest_framework import generics, status
-from rest_framework.permissions import IsAuthenticated
-from .models import UserProfile, Experience, Certificate,Project,Education
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.hashers import check_password
+import json
 class RegisterView(APIView):
-    # Allow all users (including unauthenticated) to access this view
+    permission_classes = [AllowAny]
+    def post(self, request):
+        email = request.data.get('email')
+        password = request.data.get('password')
+        print(email,password)
+        if not email or not password:
+            return Response({'error': 'Email and password are required.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if StudentUser.objects.filter(email=email).exists():
+            return JsonResponse({'message': 'User already exists'}, status=400)
+        print("next\n\n")
+        hashed_password = make_password(password)
+        user = StudentUser.objects.create(email=email, password=hashed_password)
+        user.save()
+        return JsonResponse({'message': 'User registered successfully'}, status=201)
+
+class LoginView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
         email = request.data.get('email')
         password = request.data.get('password')
-        
-        # Check if the email or password is missing
+        print(email,password)
+        # Check if both email and password are provided
         if not email or not password:
             return Response({'error': 'Email and password are required.'}, status=status.HTTP_400_BAD_REQUEST)
-        
-        # Check if a user with the same email already exists
-        if User.objects.filter(email=email).exists():
-            return Response({'error': 'A user with this email already exists.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Create the user
-        user = User.objects.create(
-            username=email,  # Since Django's User model uses 'username', we set it as the email
-            email=email,
-            password=make_password(password)  # Hash the password before saving
-        )
-        user.save()
+        try:
+            # Check if the user with the provided email exists
+            user = StudentUser.objects.get(email=email)
+        except StudentUser.DoesNotExist:
+            return JsonResponse({'error': 'Invalid email or password.'}, status=401)
 
-        return Response({'message': 'User registered successfully!'}, status=status.HTTP_201_CREATED)
-# views.py
-
-
-class LoginView(APIView):
-    def post(self, request):
-        email = request.data.get('email')
-        password = request.data.get('password')
-        
-        user = authenticate(request, username=email, password=password)
-        if user is not None:
-            return Response({'message': 'Login successful!'}, status=status.HTTP_200_OK)
+        # Verify the password using check_password
+        if check_password(password, user.password):
+            # If authentication is successful, return success message
+            return JsonResponse({
+                'message': 'Login successful',
+                'user': {
+                    'email': user.email
+                }
+            }, status=200)
         else:
-            return Response({'message': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+            return JsonResponse({'error': 'Invalid email or password.'}, status=401)
 
-
-from django.shortcuts import render, get_object_or_404
-from django.http import JsonResponse
-from .models import UserProfile, Certificate, Experience
-from django.views.decorators.csrf import csrf_exempt
-import json
-from django.contrib.auth.models import User
-
-def get_user_profile(request, email):
-    print(email)
-    user = get_object_or_404(User, email=email)
-    print(user,"hdh")
-    user_profile = get_object_or_404(UserProfile, user=user)
-    print(user_profile)
-    certificates = list(user_profile.certificates.values())
-    experiences = list(user_profile.experiences.values())
-    projects = list(user_profile.projects.values())  # Corrected from certificates to projects
-    print(projects)
-    education = list(user_profile.education.values())
-    data = {
-        'address_line_1': user_profile.address_line_1,
-        'city': user_profile.city,
-        'state': user_profile.state,
-        'pincode': user_profile.pincode,
-        'certificates': certificates,
-        'experiences': experiences,
-        'projects':projects,
-        'education':education,
-       
-    }
-    # print(data)
-    return JsonResponse(data)
-
-
-# Update User Profile based on email
 @csrf_exempt
-def update_address(request, email):
-    if request.method == 'PUT':
-        data = json.loads(request.body)
-        user = get_object_or_404(User, email=email)
-        user_profile = get_object_or_404(UserProfile, user=user)
-        
-        user_profile.address_line_1 = data.get('address_line_1', user_profile.address_line_1)
-        user_profile.city = data.get('city', user_profile.city)
-        user_profile.state = data.get('state', user_profile.state)
-        user_profile.pincode = data.get('pincode', user_profile.pincode)
-        user_profile.save()
-        
-        return JsonResponse({'message': 'UserProfile updated successfully'})
+def get_user_profile(request, email):
+    user = get_object_or_404(StudentUser, email=email)
+    return JsonResponse({
+        'email': user.email,
+        'address': list(user.address.values()), 
+        'certificates': list(user.certificates.values()), 
+        'experiences': list(user.experiences.values()),
+        'projects': list(user.projects.values()),
+        'education': list(user.education.values()),
+    })
 
-# Delete User Profile based on email
 @csrf_exempt
 def delete_user_profile(request, email):
-    if request.method == 'DELETE':
-        user = get_object_or_404(User, email=email)
-        user_profile = get_object_or_404(UserProfile, user=user)
-        user_profile.delete()
-        return JsonResponse({'message': 'UserProfile deleted successfully'})
+    user = get_object_or_404(StudentUser, email=email)
+    user.delete()
+    return JsonResponse({'message': 'User profile deleted successfully'}, status=200)
 
-# Add, Update, Delete Certificate based on user email
+@csrf_exempt
+def update_address(request, email):
+    user_profile = get_object_or_404(StudentUser, email=email)
+    
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        # Using update_or_create with defaults
+        print(data)
+        address, created = Address.objects.update_or_create(
+            user_profile=user_profile,
+            address_line_1=data['address_line_1'],  # This is used for lookup.
+            defaults={
+                'city': data.get('city', ''),
+                'state': data.get('state', ''),
+                'pincode': data.get('pincode', ''),
+            }
+        )
+        
+        if created:
+            return JsonResponse({'message': 'Address created successfully'}, status=201)
+        else:
+            return JsonResponse({'message': 'Address updated successfully'}, status=200)
+
+    return HttpResponse(status=405)  # Method not allowed for other HTTP methods
+    
+
 @csrf_exempt
 def manage_certificate(request, email):
-    user = get_object_or_404(User, email=email)
-    user_profile = get_object_or_404(UserProfile, user=user)
+    user_profile = get_object_or_404(StudentUser, email=email)
     
     if request.method == 'POST':
         data = json.loads(request.body)
@@ -136,13 +130,9 @@ def manage_certificate(request, email):
         certificate = get_object_or_404(Certificate, id=data['id'])
         certificate.delete()
         return JsonResponse({'message': 'Certificate deleted successfully'})
-
-# Add, Update, Delete Experience based on user email
 @csrf_exempt
 def manage_experience(request, email):
-    user = get_object_or_404(User, email=email)
-    user_profile = get_object_or_404(UserProfile, user=user)
-    
+    user_profile = get_object_or_404(StudentUser, email=email)
     if request.method == 'POST':
         data = json.loads(request.body)
         print(data)
@@ -159,7 +149,7 @@ def manage_experience(request, email):
             skills=data['skills']
         )
         return JsonResponse({'message': 'Experience added successfully', 'id': experience.id})
-
+    
     elif request.method == 'PUT':
         data = json.loads(request.body)
         experience = get_object_or_404(Experience, id=data['id'])
@@ -174,18 +164,16 @@ def manage_experience(request, email):
         experience.skills = data.get('skills', experience.skills)
         experience.save()
         return JsonResponse({'message': 'Experience updated successfully'})
-
     elif request.method == 'DELETE':
         data = json.loads(request.body)
         experience = get_object_or_404(Experience, id=data['id'])
         experience.delete()
         return JsonResponse({'message': 'Experience deleted successfully'})
+    return HttpResponse(status=405)
 
 @csrf_exempt
 def manage_project(request, email):
-    user = get_object_or_404(User, email=email)
-    user_profile = get_object_or_404(UserProfile, user=user)
-
+    user_profile = get_object_or_404(StudentUser, email=email)
     if request.method == 'POST':
         data = json.loads(request.body)
         project = Project.objects.create(
@@ -221,13 +209,9 @@ def manage_project(request, email):
         project.delete()
         return JsonResponse({'message': 'Project deleted successfully'})
 
-
-# Add, Update, Delete Education based on user email
 @csrf_exempt
 def manage_education(request, email):
-    user = get_object_or_404(User, email=email)
-    user_profile = get_object_or_404(UserProfile, user=user)
-
+    user_profile = get_object_or_404(StudentUser, email=email)
     if request.method == 'POST':
         data = json.loads(request.body)
         education = Education.objects.create(
