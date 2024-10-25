@@ -51,15 +51,17 @@ class LoginView(APIView):
             return JsonResponse({
                 'message': 'Login successful',
                 'user': {
+                    'id':user.id,
                     'email': user.email
+
                 }
             }, status=200)
         else:
             return JsonResponse({'error': 'Invalid email or password.'}, status=401)
 
 @csrf_exempt
-def get_user_profile(request, email):
-    user = get_object_or_404(StudentUser, email=email)
+def get_user_profile(request, id):
+    user = get_object_or_404(StudentUser, id=id)
     return JsonResponse({
         'email': user.email,
         'address': list(user.address.values()), 
@@ -70,14 +72,15 @@ def get_user_profile(request, email):
     })
 
 @csrf_exempt
-def delete_user_profile(request, email):
-    user = get_object_or_404(StudentUser, email=email)
+def delete_user_profile(request, id):
+    user = get_object_or_404(StudentUser, id=id)
     user.delete()
     return JsonResponse({'message': 'User profile deleted successfully'}, status=200)
 
+
 @csrf_exempt
-def update_address(request, email):
-    user_profile = get_object_or_404(StudentUser, email=email)
+def update_address(request, id):
+    user_profile = get_object_or_404(StudentUser, id=id)
     
     if request.method == 'POST':
         data = json.loads(request.body)
@@ -102,8 +105,8 @@ def update_address(request, email):
     
 
 @csrf_exempt
-def manage_certificate(request, email):
-    user_profile = get_object_or_404(StudentUser, email=email)
+def manage_certificate(request, id):
+    user_profile = get_object_or_404(StudentUser, id=id)
     
     if request.method == 'POST':
         data = json.loads(request.body)
@@ -131,8 +134,8 @@ def manage_certificate(request, email):
         certificate.delete()
         return JsonResponse({'message': 'Certificate deleted successfully'})
 @csrf_exempt
-def manage_experience(request, email):
-    user_profile = get_object_or_404(StudentUser, email=email)
+def manage_experience(request, id):
+    user_profile = get_object_or_404(StudentUser, id=id)
     if request.method == 'POST':
         data = json.loads(request.body)
         print(data)
@@ -172,8 +175,8 @@ def manage_experience(request, email):
     return HttpResponse(status=405)
 
 @csrf_exempt
-def manage_project(request, email):
-    user_profile = get_object_or_404(StudentUser, email=email)
+def manage_project(request, id):
+    user_profile = get_object_or_404(StudentUser, id=id)
     if request.method == 'POST':
         data = json.loads(request.body)
         project = Project.objects.create(
@@ -210,8 +213,8 @@ def manage_project(request, email):
         return JsonResponse({'message': 'Project deleted successfully'})
 
 @csrf_exempt
-def manage_education(request, email):
-    user_profile = get_object_or_404(StudentUser, email=email)
+def manage_education(request, id):
+    user_profile = get_object_or_404(StudentUser, id)
     if request.method == 'POST':
         data = json.loads(request.body)
         education = Education.objects.create(

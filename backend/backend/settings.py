@@ -30,6 +30,18 @@ CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',  # or wherever your React app is running
 ]
 CORS_ALLOW_ALL_ORIGINS = True
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
+
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=120),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+}
 
 
 # Application definition
@@ -42,8 +54,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'users',
+    'company',
     'rest_framework',
     'corsheaders',
+    'rest_framework_simplejwt',
+
 ]
 
 MIDDLEWARE = [
