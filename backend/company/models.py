@@ -31,3 +31,25 @@ class Question(models.Model):
 
     def __str__(self):
         return self.question_text
+
+class Application(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('reviewed', 'Reviewed'),
+        ('accepted', 'Accepted'),
+        ('rejected', 'Rejected')
+    ]
+    student_id = models.IntegerField()  # Assume this is an integer; adjust as needed
+    job = models.ForeignKey(Job, on_delete=models.CASCADE)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
+
+    def __str__(self):
+        return f"Application {self.id} - {self.status}"
+
+class Answer(models.Model):
+    application = models.ForeignKey(Application, on_delete=models.CASCADE, related_name='answers')
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='answers')
+    answer_text = models.TextField()
+
+    def __str__(self):
+        return f"Answer {self.id} for Application {self.application_id}"

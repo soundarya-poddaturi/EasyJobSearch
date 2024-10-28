@@ -31,6 +31,9 @@ const NavbarStud = ({ userEmail, handleLogout }) => {
                                         <Link className="nav-link" to="/profile">Profile</Link>
                                     </li>
                                     <li className="nav-item">
+                                        <Link className="nav-link" to="/applied">Applied Jobs</Link>
+                                    </li>
+                                    <li className="nav-item">
                                         <button className="nav-link btn" onClick={handleLogout}>Logout</button>
                                     </li>
                                 </>

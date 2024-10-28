@@ -20,8 +20,8 @@ const Login = ({ onLogin }) => {
         axios.post(url, { email, password })
             .then(response => {
                 console.log(response.data)
-                const storageKey = role === 'student' ? 'student_id' : 'employer_id';
-                localStorage.setItem(storageKey, response.data.user.id); // Store the email
+                // const storageKey = role === 'student' ? 'student_id' : 'employer_id';
+                // localStorage.setItem(storageKey, response.data.user.id); // Store the email
                
                 onLogin(response.data.user.id, role); // Pass both email and role here
 

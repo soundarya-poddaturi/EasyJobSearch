@@ -8,17 +8,24 @@ from .views import (
     manage_certificate, 
     manage_experience,
     manage_project,
-    manage_education
+    manage_education,
+    user_profile,
+    ResumeView
+    
+    
 )
 
 urlpatterns = [
     path('register/', RegisterView.as_view(), name='register'),
     path('login/', LoginView.as_view(), name='login'),
-    path('profile/<int:id>/', get_user_profile, name='get_user_profile'),
+    path('profile/<int:id>/', user_profile, name='user_profile'),
     path('profile/delete/<int:id>/', delete_user_profile, name='delete_user_profile'),
     path('address/manage/<int:id>/', update_address, name='update_user_profile'),
     path('certificate/manage/<int:id>/', manage_certificate, name='manage_certificate'),
     path('experience/manage/<int:id>/', manage_experience, name='manage_experience'),
     path('project/manage/<int:id>/', manage_project, name='manage_project'),
     path('education/manage/<int:id>/', manage_education, name='manage_education'),
+   path('resume/<int:student_id>/', ResumeView.as_view(), name='resume-detail'),
+
+    
 ]

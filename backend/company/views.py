@@ -1,6 +1,7 @@
 #Company side views by suppa
 
 # from django.contrib.auth.models import Company
+from rest_framework.views import APIView
 from .models import Company
 from rest_framework import status
 from rest_framework.response import Response
@@ -10,6 +11,15 @@ from django.contrib.auth import authenticate
 from django.http import JsonResponse, HttpResponse
 from django.contrib.auth.hashers import check_password
 from django.contrib.auth.hashers import make_password
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
+from .serializers import JobSerializer
+from .models import Job
+from .serializers import ApplicationSerializer
+from .models import Application  # Make sure this line is present
+
+
 # Register view
 @api_view(['POST'])
 def register_company(request):
@@ -70,12 +80,6 @@ def login_company(request):
 
 
 
-
-from rest_framework import status
-from rest_framework.response import Response
-from rest_framework.decorators import api_view
-from .serializers import JobSerializer
-from .models import Job
 
 
 @api_view(['POST'])
@@ -156,7 +160,7 @@ def list_jobs(request):
     return JsonResponse(job_list, safe=False)
 @api_view(['GET'])
 def get_company_jobs(request, company_id):
-    print(company_id)
+    # print(company_id)
     try:
         # Retrieve the company by ID
         company = Company.objects.get(id=company_id)
@@ -180,3 +184,82 @@ def get_company_jobs(request, company_id):
 
     except Company.DoesNotExist:
         return JsonResponse({'error': 'Company not found.'}, status=404)
+@api_view(['GET'])
+def get_job_details(request, job_id):
+    try:
+        # Retrieve the job with the provided job_id
+        job = Job.objects.get(id=job_id)
+        
+        # Serialize the job details
+        serializer = JobSerializer(job)
+        
+        # Return the serialized job data as JSON response
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    except Job.DoesNotExist:
+        return Response({"error": "Job not found."}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+def create_application(request):
+    serializer = ApplicationSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET'])
+def get_applications_by_job(request, job_id):
+    try:
+
+        applications = Application.objects.filter(job_id=job_id)  # Get applications for the specified job
+        serializer = ApplicationSerializer(applications, many=True)  # Serialize the data
+        return Response(serializer.data, status=status.HTTP_200_OK)  # Return the serialized data
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+@api_view(['GET'])
+def get_application_details(request, application_id):
+    # print("application by jobid")
+    try:
+        # Retrieve the application by ID
+        application = Application.objects.get(id=application_id)
+        # print(application)
+    except Application.DoesNotExist:
+        return Response({"error": "Application not found."}, status=status.HTTP_404_NOT_FOUND)
+
+    # Serialize the application details with answers and questions
+    serializer = ApplicationSerializer(application)
+    print(serializer.data)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class UpdateApplicationStatusView(APIView):
+    def patch(self, request, pk):
+        try:
+            application = Application.objects.get(pk=pk)
+        except Application.DoesNotExist:
+            return Response({"error": "Application not found."}, status=status.HTTP_404_NOT_FOUND)
+        
+        # Update only the `status` field
+        application.status = request.data.get("status")
+        application.save()
+
+        return Response({"message": "Status updated successfully", "status": application.status}, status=status.HTTP_200_OK)
+    
+@api_view(['GET'])
+def get_application_ids_by_student(request, student_id):
+    try:
+        # Filter applications by the provided student_id
+        applications = Application.objects.filter(student_id=student_id)
+        
+        # Extract only the application IDs
+        application_ids = applications.values_list('id', flat=True)
+        
+        # Return the list of application IDs as a JSON response
+        return Response({"application_ids": list(application_ids)}, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)

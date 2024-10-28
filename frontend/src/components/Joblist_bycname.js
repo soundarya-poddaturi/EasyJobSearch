@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useParams } from 'react-router-dom'; // Import useParams to get route parameters
+import { useParams ,useNavigate} from 'react-router-dom'; // Import useParams to get route parameters
 
 const Joblist_bycname = () => {
     const { id } = useParams(); // Get the company ID from the URL parameters
@@ -12,7 +12,7 @@ const Joblist_bycname = () => {
             handleSearch(); // Automatically fetch jobs when the component mounts
         }
     }, [id]);
-
+    const navigate=useNavigate();
     const handleSearch = async () => {
         try {
             const response = await axios.get(`http://localhost:8000/company/${id}/jobs/`);
@@ -23,23 +23,44 @@ const Joblist_bycname = () => {
             setJobs([]); // Clear jobs if there's an error
         }
     };
+    const handleApplication = async (jobId) => {
+        navigate(`/company/jobs/${jobId}/applications`);
+    };
 
     return (
-        <div>
-            <h1>Job Listings for Company ID: {id}</h1>
+        <div className="container my-4">
+            <h1 className="mb-4">Job Listings for Company ID: {id}</h1>
 
-            {error && <p style={{ color: 'red' }}>{error}</p>}
+            {error && <p className="text-danger">{error}</p>}
 
-            <ul>
-                {jobs.map(job => (
-                    <li key={job.job_id}>
-                        <h2>{job.job_name}</h2>
-                        <p>{job.job_description}</p>
-                        <p>Role: {job.job_role}</p>
-                        <p>Last Date: {job.last_date}</p>
-                    </li>
-                ))}
-            </ul>
+            <div className="row">
+                {jobs.length > 0 ? (
+                    jobs.map(job => (
+                        <div key={job.job_id} className="col-md-4 mb-4">
+                            <div className="card">
+                                <div className="card-body">
+                                    <h5 className="card-title">{job.job_name}</h5>
+                                    <p className="card-text">{job.job_description}</p>
+                                    <p className="card-text"><strong>Role:</strong> {job.job_role}</p>
+                                    <p className="card-text"><strong>Last Date:</strong> {job.last_date}</p>
+                                </div>
+                                <div className="card-footer">
+                                    <button onClick={()=>handleApplication(job.job_id)}>Check Applications</button>
+                                </div>
+
+                            </div>
+                        </div>
+                    ))
+                ) : (
+                    <div className="col-12">
+                        <div className="card text-center">
+                            <div className="card-body">
+                                <h5 className="card-title">No Job Listings Available</h5>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
         </div>
     );
 };

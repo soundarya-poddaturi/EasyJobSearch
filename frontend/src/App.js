@@ -11,14 +11,17 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import NavbarStud from './components/NavbarStud';
 import NavbarComp from './components/NavbarComp';
 import NavbarBasic from './components/NavbarBasic';
-
+import Applications_by_jobid from './components/Applications_by_jobid';
+import ApplicationDetails from './components/ApplicationDetails';
+import SingleApplicationDetails from './components/SingleApplicationDetails';
+import AppliedJobs from './components/AppliedJobs';
 function App() {
     const [userId, setUseId] = useState(localStorage.getItem('student_id') || localStorage.getItem('employer_id'));
     const [userRole, setUserRole] = useState(localStorage.getItem('student_id') ? 'student' : 'employer');
     const [companyId, setCompanyId] = useState(localStorage.getItem('employerId')); // Retrieve company ID from local storage
 
     return (
-        
+
         <Router>
             <div className="App">
                 <NavbarWrapper 
@@ -36,7 +39,7 @@ function App() {
                             setUseId(email);
                             setUserRole(role);
                             console.log(email)
-                            localStorage.setItem(role === 'student' ? 'student_id' : 'student_id', email);
+                            localStorage.setItem(role === 'student' ? 'student_id' : 'employer_id', email);
                         }} 
                     />} />
                     {/* <Route path="/profile" element={userId ? <UserProfile email={userId}/> : <Navigate to="/login" />} /> */}
@@ -44,6 +47,10 @@ function App() {
                     <Route path="/create-job" element={<CreateJob id={userId}/>} />
                     <Route path="/job-list" element={<JobList />} />
                     <Route path="/job-listbycname/:id" element={<Joblist_bycname id={userId} />} />
+                    {/* <Route path="/applnsbyjobid" element={<Applications_by_jobid jobId={jobId} />} /> */}
+                    <Route path="/company/jobs/:jobId/applications" element={<ApplicationDetails/>} />
+                    <Route path="/company/jobs/:appId" element={<SingleApplicationDetails/>} />
+                    <Route path="/applied" element={<AppliedJobs/>} />
                 </Routes>
             </div>
         </Router>
@@ -52,11 +59,12 @@ function App() {
 
 // Create a separate component to handle navigation and logout
 const NavbarWrapper = ({ userId, userRole, setUseId, setUserRole}) => {
-    console.log(userId)
+    // console.log(userId)
     const navigate = useNavigate();
 
     const handleLogout = () => {
         localStorage.removeItem('student_id');
+        console.log("logging out ")
         localStorage.removeItem('employer_id'); // Remove employer ID from local storage
         setUseId(null);
         setUserRole(null);

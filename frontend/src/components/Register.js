@@ -1,51 +1,66 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import {useNavigate } from 'react-router-dom'; 
 const Register = () => {
     const [formData, setFormData] = useState({
+        firstName: '',
+        middleName: '',
+        lastName: '',
         email: '',
-        password: ''
+        password: '',
+        reEnterPassword: '',
+        gender: '',
+        mobile: ''
     });
-    const [isEmployer, setIsEmployer] = useState(false); // To toggle between student and employer
+    
+    const [isEmployer, setIsEmployer] = useState(false);
+    
     const [employerData, setEmployerData] = useState({
         email: '',
         password: '',
         name: '',
         location: ''
     });
-    const [message, setMessage] = useState('');
-
-    const handleSubmit = (event) => {
+    const navigate =useNavigate();
+    const handleSubmit = async (event) => {
         event.preventDefault();
         const dataToSend = isEmployer ? employerData : formData;
+
+        // Validate password match
+        if (isEmployer && dataToSend.password !== dataToSend.reEnterPassword) {
+            toast.error('Passwords do not match. Please try again.');
+            return;
+        }
+
         const url = isEmployer 
             ? 'http://localhost:8000/company/register_company/' 
             : 'http://localhost:8000/api/register/';
 
-        axios.post(url, dataToSend)
-            .then(response => {
-                setMessage('Registration successful!');
-                console.log(response.data);
-                // Reset forms after successful registration
-                setFormData({ email: '', password: '' });
+        try {
+            const response = await axios.post(url, dataToSend);
+            toast.success('Registration successful!');
+
+            // Reset forms after successful registration
+            if (isEmployer) {
                 setEmployerData({ email: '', password: '', name: '', location: '' });
-            })
-            .catch(error => {
-                setMessage('Registration failed. Please try again.');
-                console.error('Error:', error);
-            });
-    };
+            } else {
+                setFormData({ firstName: '', middleName: '', lastName: '', email: '', password: '', reEnterPassword: '', gender: '', mobile: '' });
+            }
 
-    const handleEmployerClick = () => {
-        setIsEmployer(true);
-    };
+            // Navigate to login (if using React Router)
+            // navigate('/login');
 
-    const handleStudentClick = () => {
-        setIsEmployer(false);
+        } catch (error) {
+            toast.error('Registration failed. ' + (error.response.data.error || 'Please try again.'));
+            console.error('Error:', error);
+        }
     };
 
     return (
         <div className="container mt-5">
+            <ToastContainer />
             <div className="row">
                 <div className="col-md-6 offset-md-3">
                     <h2>{isEmployer ? 'Employer' : 'Student'} Registration</h2>
@@ -53,20 +68,87 @@ const Register = () => {
                         <button 
                             type="button" 
                             className={`btn btn-${isEmployer ? 'secondary' : 'primary'}`} 
-                            onClick={handleStudentClick}
+                            onClick={() => setIsEmployer(false)}
                         >
                             Student
                         </button>
                         <button 
                             type="button" 
                             className={`btn btn-${isEmployer ? 'primary' : 'secondary'}`} 
-                            onClick={handleEmployerClick}
+                            onClick={() => setIsEmployer(true)}
                         >
                             Employer
                         </button>
                     </div>
 
                     <form onSubmit={handleSubmit}>
+                        {/* Name fields for Student */}
+                        {!isEmployer && (
+                            <>
+                                <div className="mb-3">
+                                    <label htmlFor="firstName" className="form-label">First Name</label>
+                                    <input 
+                                        type="text" 
+                                        className="form-control" 
+                                        id="firstName"
+                                        value={formData.firstName}
+                                        onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                                        required
+                                    />
+                                </div>
+                                <div className="mb-3">
+                                    <label htmlFor="middleName" className="form-label">Middle Name (Optional)</label>
+                                    <input 
+                                        type="text" 
+                                        className="form-control" 
+                                        id="middleName"
+                                        value={formData.middleName}
+                                        onChange={(e) => setFormData({ ...formData, middleName: e.target.value })}
+                                    />
+                                </div>
+                                <div className="mb-3">
+                                    <label htmlFor="lastName" className="form-label">Last Name</label>
+                                    <input 
+                                        type="text" 
+                                        className="form-control" 
+                                        id="lastName"
+                                        value={formData.lastName}
+                                        onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                                        required
+                                    />
+                                </div>
+
+                                {/* Gender field (Optional) */}
+                                <div className="mb-3">
+                                    <label htmlFor="gender" className="form-label">Gender (Optional)</label>
+                                    <select
+                                        className="form-control"
+                                        id="gender"
+                                        value={formData.gender}
+                                        onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
+                                    >
+                                        <option value="">Select</option>
+                                        <option value="male">Male</option>
+                                        <option value="female">Female</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
+
+                                {/* Mobile number field (Optional) */}
+                                <div className="mb-3">
+                                    <label htmlFor="mobile" className="form-label">Mobile Number (Optional)</label>
+                                    <input 
+                                        type="text" 
+                                        className="form-control" 
+                                        id="mobile"
+                                        value={formData.mobile}
+                                        onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
+                                    />
+                                </div>
+                            </>
+                        )}
+
+                        {/* Email and Password fields */}
                         <div className="mb-3">
                             <label htmlFor="email" className="form-label">Email</label>
                             <input 
@@ -75,16 +157,13 @@ const Register = () => {
                                 id="email"
                                 value={isEmployer ? employerData.email : formData.email}
                                 onChange={(e) => {
-                                    if (isEmployer) {
-                                        setEmployerData({ ...employerData, email: e.target.value });
-                                    } else {
-                                        setFormData({ ...formData, email: e.target.value });
-                                    }
+                                    const value = e.target.value;
+                                    if (isEmployer) setEmployerData({ ...employerData, email: value });
+                                    else setFormData({ ...formData, email: value });
                                 }}
                                 required
                             />
                         </div>
-
                         <div className="mb-3">
                             <label htmlFor="password" className="form-label">Password</label>
                             <input 
@@ -93,16 +172,30 @@ const Register = () => {
                                 id="password"
                                 value={isEmployer ? employerData.password : formData.password}
                                 onChange={(e) => {
-                                    if (isEmployer) {
-                                        setEmployerData({ ...employerData, password: e.target.value });
-                                    } else {
-                                        setFormData({ ...formData, password: e.target.value });
-                                    }
+                                    const value = e.target.value;
+                                    if (isEmployer) setEmployerData({ ...employerData, password: value });
+                                    else setFormData({ ...formData, password: value });
+                                }}
+                                required
+                            />
+                        </div>
+                        <div className="mb-3">
+                            <label htmlFor="reEnterPassword" className="form-label">Re-enter Password</label>
+                            <input 
+                                type="password" 
+                                className="form-control" 
+                                id="reEnterPassword"
+                                value={isEmployer ? employerData.reEnterPassword : formData.reEnterPassword}
+                                onChange={(e) => {
+                                    const value = e.target.value;
+                                    if (isEmployer) setEmployerData({ ...employerData, reEnterPassword: value });
+                                    else setFormData({ ...formData, reEnterPassword: value });
                                 }}
                                 required
                             />
                         </div>
 
+                        {/* Employer-specific fields */}
                         {isEmployer && (
                             <>
                                 <div className="mb-3">
@@ -116,7 +209,6 @@ const Register = () => {
                                         required
                                     />
                                 </div>
-
                                 <div className="mb-3">
                                     <label htmlFor="location" className="form-label">Location</label>
                                     <input 
@@ -133,7 +225,6 @@ const Register = () => {
 
                         <button type="submit" className="btn btn-primary">Register</button>
                     </form>
-                    {message && <div className="mt-3 alert alert-info">{message}</div>}
                 </div>
             </div>
         </div>
