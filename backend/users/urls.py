@@ -10,8 +10,8 @@ from .views import (
     manage_project,
     manage_education,
     user_profile,
-    ResumeView
-    
+    ResumeView,
+    AddSkillView
     
 )
 
@@ -25,7 +25,8 @@ urlpatterns = [
     path('experience/manage/<int:id>/', manage_experience, name='manage_experience'),
     path('project/manage/<int:id>/', manage_project, name='manage_project'),
     path('education/manage/<int:id>/', manage_education, name='manage_education'),
-   path('resume/<int:student_id>/', ResumeView.as_view(), name='resume-detail'),
+    path('resume/<int:student_id>/', ResumeView.as_view(), name='resume-detail'),
+    path('skills/manage/<int:student_id>/', AddSkillView.as_view(), name='add-skill'),
 
     
 ]

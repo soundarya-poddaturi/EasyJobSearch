@@ -67,6 +67,7 @@ const ManageRecords = ({ recordType, initialRecords, apiEndpoint, fields }) => {
     
     const handleAddRecord = async () => {
         const errors = validateFields(newRecord);
+        console.log(newRecord);
         if (Object.keys(errors).length > 0) {
             setValidationErrors(errors);
             return;
@@ -95,6 +96,7 @@ const ManageRecords = ({ recordType, initialRecords, apiEndpoint, fields }) => {
         }
         setValidationErrors({});
         try {
+            console.log(editRecord)
             await axios.put(`${apiEndpoint}/`, editRecord);
             setRecords(records.map((rec) => (rec.id === editRecord.id ? editRecord : rec)));
             setEditRecord(null);
@@ -191,9 +193,13 @@ const ManageRecords = ({ recordType, initialRecords, apiEndpoint, fields }) => {
                     {records.map((rec) => (
                         <li className='mb-3' key={rec.id}>
                             <div className='d-flex justify-content-between align-items-center border rounded p-3 bg-white'>
-                                <div>
-                                    <span className='fw-bold'>{rec[fields[0].name]}</span> <span className='text-muted'>({rec[fields[1].name]})</span>
-                                </div>
+                            <div>
+    <span className='fw-bold'>{rec[fields[0].name]}</span>
+    {fields[1] && rec[fields[1].name] && (
+        <span className='text-muted'> ({rec[fields[1].name]})</span>
+    )}
+</div>
+
                                 <div className='btn-group'>
                                     <button
                                         className='btn btn-sm btn-warning'

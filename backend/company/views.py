@@ -84,6 +84,7 @@ def login_company(request):
 
 @api_view(['POST'])
 def create_job(request):
+    print(request.data)
     serializer = JobSerializer(data=request.data, context={'request': request})
     if serializer.is_valid():
         serializer.save()
@@ -144,6 +145,9 @@ def list_jobs(request):
             'job_role': job.job_role,
             'job_description': job.job_description,
             'last_date': job.last_date,
+            'experience':job.experience,
+            'type':job.type,
+            'salary':job.salary,
             'company': {
                 'id': job.company.id,
                 'name': job.company.name,
@@ -176,6 +180,9 @@ def get_company_jobs(request, company_id):
                 'job_role': job.job_role,
                 'job_description': job.job_description,
                 'last_date': job.last_date,
+                'experience':job.experience,
+                'type':job.type,
+                'salary':job.salary,
             }
             job_list.append(job_data)
 
@@ -199,14 +206,95 @@ def get_job_details(request, job_id):
         return Response({"error": "Job not found."}, status=status.HTTP_404_NOT_FOUND)
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
+'''
 @api_view(['POST'])
 def create_application(request):
     serializer = ApplicationSerializer(data=request.data)
+    
     if serializer.is_valid():
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+'''
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework import status
+from .serializers import ApplicationSerializer
+from .models import Job  # Import Job from the current app
+from django.http import JsonResponse
+from users.views import user_profile  # Adjust this import based on your project structure
+from django.test import RequestFactory  # Import RequestFactory
+import json
+
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework import status
+from .serializers import ApplicationSerializer
+from .models import Job  # Import Job from the current app
+from users.models import StudentUser  # Import StudentUser from the users app
+from django.http import JsonResponse
+from users.views import user_profile  # Adjust this import based on your project structure
+from django.test import RequestFactory  # Import RequestFactory
+
+@api_view(['POST'])
+def create_application(request):
+    serializer = ApplicationSerializer(data=request.data)
+
+    if serializer.is_valid():
+        # Extract student ID and job ID from request data
+        student_id = request.data.get('student_id')
+        job_id = request.data.get('job_id')
+
+        # Fetch job details
+        try:
+            job = Job.objects.get(id=job_id)  # Fetch job from the same app
+        except Job.DoesNotExist:
+            return Response({"error": "Job not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        # Fetch mandatory skills for the job
+        mandatory_skills = job.mandatory_skills.all()  # Adjust based on your Job model's relationship to Skills
+
+        # Fetch student details using the existing user_profile function
+        factory = RequestFactory()
+        student_request = factory.get(f'/api/profile/{student_id}/')  # Adjust URL as necessary
+        student_response = user_profile(student_request, student_id)  # Call the user_profile function
+        
+        # Extract data from the JsonResponse
+        student_data = student_response.content  # Get the content of the response
+        student_data = json.loads(student_data)  # Convert bytes to JSON
+        
+        # Get student skills
+        student_skills = set(student_data['skills'])  # Adjust based on your user_profile function's response structure
+
+        # Check if student has all mandatory skills
+        missing_skills = [skill for skill in mandatory_skills if skill not in student_skills]
+
+        if missing_skills:
+            return Response(
+                {"error": "Student is missing the following mandatory skills: " + ", ".join(missing_skills)},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Create the application
+        application = serializer.save()  # Save the application
+
+        # Prepare the response data
+        response_data = {
+            "application": serializer.data,
+            "student": student_data['personal_info'],  # Adjust based on what you need
+            "job": {
+                "id": job.id,
+                "job_name": job.job_name,  # Adjust based on your Job fields
+                "job_role": job.job_role,  # Adjust based on your Job fields
+                "company_id": job.company_id,  # Adjust based on your Job fields
+            },
+        }
+        
+        return Response(response_data, status=status.HTTP_201_CREATED)
+
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 
 
 @api_view(['GET'])
@@ -244,7 +332,7 @@ class UpdateApplicationStatusView(APIView):
         except Application.DoesNotExist:
             return Response({"error": "Application not found."}, status=status.HTTP_404_NOT_FOUND)
         
-        # Update only the `status` field
+        # Update only the status field
         application.status = request.data.get("status")
         application.save()
 

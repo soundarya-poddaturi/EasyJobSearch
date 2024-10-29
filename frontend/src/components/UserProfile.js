@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import ManageRecords from './ManageRecords';
 import Address from './Address';
-import ManageResume from './ManageResume'; // Import the new component
+import ManageResume from './ManageResume';
 
 const UserProfile = ({ id }) => {
     const [userData, setUserData] = useState({
@@ -10,7 +10,8 @@ const UserProfile = ({ id }) => {
         experiences: [],
         projects: [],
         education: [],
-        resumes: [] // Add resumes to the state
+        skills: [],
+        resumes: []
     });
 
     useEffect(() => {
@@ -25,7 +26,8 @@ const UserProfile = ({ id }) => {
                     experiences: data.experiences,
                     projects: data.projects,
                     education: data.education,
-                    resumes: data.resumes // Include resumes in the state
+                    skills: data.skills,
+                    resumes: data.resumes
                 });
             } catch (error) {
                 console.error('Error fetching user data:', error);
@@ -39,49 +41,61 @@ const UserProfile = ({ id }) => {
         event.preventDefault();
     };
 
-    const certificateFields = [
-        { name: 'title', type: 'text', placeholder: 'Certificate Title', required: true },
-        { name: 'description', type: 'text', placeholder: 'Description', required: false },
-        { name: 'file_link', type: 'text', placeholder: 'File Link', required: false }
-    ];
+    // Certificate Fields
+const certificateFields = [
+    { name: 'title', type: 'text', placeholder: 'Certificate Title', required: true },
+    { name: 'issuing_organization', type: 'text', placeholder: 'Issuing Organization', required: true },
+    { name: 'description', type: 'textarea', placeholder: 'Description', required: false },
+    { name: 'file_link', type: 'url', placeholder: 'File Link', required: false }
+];
 
-    const educationFields = [
-        { name: 'institute_name', type: 'text', placeholder: 'Institute Name', required: true },
-        { name: 'marks_or_grade', type: 'text', placeholder: 'Marks/Grade', required: false },
-        { name: 'duration_from', type: 'date', placeholder: 'Start Date', required: false },
-        { name: 'duration_to', type: 'date', placeholder: 'End Date', required: false }
-    ];
+// Education Fields
+const educationFields = [
+    { name: 'institute_name', type: 'text', placeholder: 'Institute Name', required: true },
+    { name: 'degree_name', type: 'text', placeholder: 'Degree', required: true },
+    { name: 'specialization', type: 'text', placeholder: 'Specialization', required: true },
+    { name: 'duration_from', type: 'date', placeholder: 'Start Date', required: false },
+    { name: 'duration_to', type: 'date', placeholder: 'End Date', required: false },
+    { name: 'current', type: 'checkbox', placeholder: 'Currently Enrolled', required: false },
+    { name: 'marks_or_grade', type: 'text', placeholder: 'Marks/Grade', required: false }
+];
 
-    const experienceFields = [
-        { name: 'employer', type: 'text', placeholder: 'Employer', required: true },
-        { name: 'location', type: 'text', placeholder: 'Location', required: false },
-        { name: 'role_title', type: 'text', placeholder: 'Role Title', required: true },
-        { name: 'description', type: 'textarea', placeholder: 'Description', required: false },
-        { name: 'duration_from', type: 'date', placeholder: 'Start Date', required: false },
-        { name: 'duration_to', type: 'date', placeholder: 'End Date', required: false },
-        { name: 'skills', type: 'text', placeholder: 'Skills', required: false }
-    ];
+// Experience Fields
+const experienceFields = [
+    { name: 'employer', type: 'text', placeholder: 'Employer', required: true },
+    { name: 'location', type: 'text', placeholder: 'Location', required: false },
+    { name: 'role_title', type: 'text', placeholder: 'Role Title', required: true },
+    { name: 'duration_from', type: 'date', placeholder: 'Start Date', required: false },
+    { name: 'duration_to', type: 'date', placeholder: 'End Date', required: false },
+    { name: 'current', type: 'checkbox', placeholder: 'Currently Employed', required: false },
+    { name: 'description', type: 'textarea', placeholder: 'Description', required: false },
+    { name: 'skills', type: 'text', placeholder: 'Skills Used', required: false }
+];
 
-    const projectFields = [
-        { name: 'title', type: 'text', placeholder: 'Project Title', required: true },
-        { name: 'description', type: 'text', placeholder: 'Description', required: false },
-        { name: 'link', type: 'text', placeholder: 'Link', required: false },
-        { name: 'skills', type: 'text', placeholder: 'Skills', required: false },
-        { name: 'duration_from', type: 'date', placeholder: 'Start Date', required: false },
-        { name: 'duration_to', type: 'date', placeholder: 'End Date', required: false }
-    ];
+// Project Fields
+const projectFields = [
+    { name: 'title', type: 'text', placeholder: 'Project Title', required: true },
+    { name: 'duration_from', type: 'date', placeholder: 'Start Date', required: false },
+    { name: 'duration_to', type: 'date', placeholder: 'End Date', required: false },
+    { name: 'current', type: 'checkbox', placeholder: 'Ongoing Project', required: false },
+    { name: 'description', type: 'textarea', placeholder: 'Description', required: false },
+    { name: 'skills', type: 'text', placeholder: 'Skills Used', required: false },
+    { name: 'link', type: 'url', placeholder: 'Project Link', required: false }
+];
+
+// Skill Fields
+const skillFields = [
+    { name: 'skill_name', type: 'text', placeholder: 'Skill', required: true }
+];
+
 
     return (
         <div>
-            <h1 className='text-muted'>Hello {userData.personal_info.first_name}!!</h1>
+            <h1 className='text-muted'>Hello {userData.personal_info.first_name}!</h1>
             <Address id={id} personalInfo={userData.personal_info} />
             <form onSubmit={handleSubmit} className='d-grid col-12'>
 
-                <ManageResume
-                    
-                    
-                    userId={id}
-                />
+                <ManageResume userId={id} />
 
                 <ManageRecords
                     recordType="Certificate"
@@ -98,6 +112,7 @@ const UserProfile = ({ id }) => {
                     apiEndpoint={`http://localhost:8000/api/education/manage/${id}`}
                     fields={educationFields}
                 />
+               
 
                 <ManageRecords
                     recordType="Experience"
@@ -113,6 +128,14 @@ const UserProfile = ({ id }) => {
                     id={id}
                     apiEndpoint={`http://localhost:8000/api/project/manage/${id}`}
                     fields={projectFields}
+                />
+
+                <ManageRecords
+                    recordType="Skill"
+                    initialRecords={userData.skills}
+                    id={id}
+                    apiEndpoint={`http://localhost:8000/api/skills/manage/${id}`} 
+                    fields={skillFields}
                 />
             </form>
         </div>

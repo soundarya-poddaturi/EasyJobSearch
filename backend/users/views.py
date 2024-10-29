@@ -1,7 +1,7 @@
 from django.views.decorators.http import require_http_methods
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse, HttpResponse
-from .models import StudentUser, Address, Certificate, Experience, Project, Education
+from .models import Skills, StudentUser, Address, Certificate, Experience, Project, Education
 from django.contrib.auth.hashers import make_password,check_password
 from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
@@ -24,6 +24,8 @@ class RegisterView(APIView):
         last_name = request.data.get('lastName')
         gender = request.data.get('gender', '')  # Optional
         mobile = request.data.get('mobile', '')  # Optional
+        linkedin=request.data.get('linkedin', '')
+        github=request.data.get('github', '')
 
         # Validate required fields
         if not email or not password or not first_name or not last_name:
@@ -45,6 +47,8 @@ class RegisterView(APIView):
             first_name=first_name,
             middle_name=middle_name,
             last_name=last_name,
+            linkedin=linkedin,
+            github=github,
             gender=gender,
             mobile=mobile
         )
@@ -112,6 +116,7 @@ def user_profile(request, id):
             'experiences': list(user.experiences.values()) if hasattr(user, 'experiences') else [],
             'projects': list(user.projects.values()) if hasattr(user, 'projects') else [],
             'education': list(user.education.values()) if hasattr(user, 'education') else [],
+            'skills': list(user.skills.values()) if hasattr(user, 'skills') else [],
             'resume': {
             'id': user.resume.id,
             'pdf_file': user.resume.pdf_file.url  # Assuming pdf_file is a FileField in Resume model
@@ -174,6 +179,8 @@ def get_user_profile(request, id):
         'last_name': user.last_name,
         'gender': user.gender,
         'mobile': user.mobile,
+        'linkedin':user.linkedin,
+        'github':user.github,
         'address': list(user.address.values()) if hasattr(user, 'address') else []  # Optional address
     }
     
@@ -256,6 +263,7 @@ def manage_certificate(request, id):
         certificate = Certificate.objects.create(
             user_profile=user_profile,
             title=data['title'],
+            issuing_organization=data['issuing_organization'],
             description=data['description'],
             file_link=data['file_link']
         )
@@ -267,6 +275,7 @@ def manage_certificate(request, id):
         certificate.title = data.get('title', certificate.title)
         certificate.description = data.get('description', certificate.description)
         certificate.file_link = data.get('file_link', certificate.file_link)
+        certificate.issuing_organization = data.get('issuing_organization', certificate.issuing_organization)
         certificate.save()
         return JsonResponse({'message': 'Certificate updated successfully'})
 
@@ -424,13 +433,16 @@ def manage_education(request, id):
             institute_name = data.get('institute_name')
             if not institute_name:
                 return JsonResponse({'error': 'Institute name is required'}, status=400)
-
+            degree_name = data.get('degree_name')
+            specialization=data.get('specialization')
             duration_from = parse_date(data.get('duration_from'))
             duration_to = parse_date(data.get('duration_to'))
 
             education = Education.objects.create(
                 user_profile=user_profile,
                 institute_name=institute_name,
+                degree_name=degree_name,
+                specialization=specialization,
                 duration_from=duration_from,
                 duration_to=duration_to,
                 marks_or_grade=data.get('marks_or_grade', '')
@@ -442,6 +454,8 @@ def manage_education(request, id):
             education.institute_name = data.get('institute_name', education.institute_name)
             education.duration_from = parse_date(data.get('duration_from')) or education.duration_from
             education.duration_to = parse_date(data.get('duration_to')) or education.duration_to
+            specialization=data.get('specialization', education.specialization),
+            degree_name=data.get('degree_name', education.degree_name),
             education.marks_or_grade = data.get('marks_or_grade', education.marks_or_grade)
             education.save()
             return JsonResponse({'message': 'Education updated successfully', 'id': education.id}, status=200)
@@ -532,3 +546,63 @@ class ResumeView(APIView):
             return Response({'error': 'Student not found'}, status=status.HTTP_404_NOT_FOUND)
         except Resume.DoesNotExist:
             return Response({'error': 'Resume not found'}, status=status.HTTP_404_NOT_FOUND)
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from .models import StudentUser, Skills
+from .serializers import SkillsSerializer
+
+class AddSkillView(APIView):
+    def post(self, request, student_id):
+        skill_name = request.data.get('skill_name')
+
+        if not student_id or not skill_name:
+            return Response({"error": "user_id and skill_name are required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user = StudentUser.objects.get(id=student_id)
+        except StudentUser.DoesNotExist:
+            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        skill = Skills.objects.create(user_profile=user, skill_name=skill_name)
+        serializer = SkillsSerializer(skill)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def put(self, request, student_id):
+        skill_name = request.data.get('skill_name')
+
+        if not skill_name:
+            return Response({"error": "skill_name is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user = StudentUser.objects.get(id=student_id)
+        except StudentUser.DoesNotExist:
+            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        try:
+            # Try to find an existing skill with the given name for this user
+            skill = Skills.objects.get(user_profile=user, skill_name=skill_name)
+            skill.skill_name = skill_name  # Update the name (if necessary, but may be redundant)
+            skill.save()
+            serializer = SkillsSerializer(skill)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Skills.DoesNotExist:
+            # If the skill does not exist, create a new one
+            skill = Skills.objects.create(user_profile=user, skill_name=skill_name)
+            serializer = SkillsSerializer(skill)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def delete(self, request, student_id):
+        skill_id = request.data.get('id')
+
+        if not skill_id:
+            return JsonResponse({'error': 'Skill ID is required'}, status=400)
+
+        try:
+            # Ensure we are deleting a specific skill belonging to the given student
+            skill = get_object_or_404(Skills, user_profile_id=student_id, id=skill_id)
+            skill.delete()
+            return JsonResponse({'message': 'Skill deleted successfully', 'id': skill_id}, status=200)
+        except Skills.DoesNotExist:
+            return JsonResponse({'error': 'Skill not found'}, status=404)
