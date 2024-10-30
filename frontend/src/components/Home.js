@@ -3,8 +3,7 @@ import JobList from './JobList';
 import Login from './Login';
 import Register from './Register';
 
-export const Home = () => {
-    const [activeComponent, setActiveComponent] = useState(null);
+export const Home = ({ setUseId, setUserRole }) => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
 
     useEffect(() => {
@@ -18,31 +17,24 @@ export const Home = () => {
         <div className="container">
             <div className="row">
                 {/* JobList on the left side */}
-                <div className="col-6">
+                {/* <div className="col-6">
                     <JobList />
-                </div>
+                </div> */}
                 
                 {/* Login/Register section on the right side if no user is logged in */}
                 {!isLoggedIn && (
-                    <div className="col-6">
+                    <div className="">
                         <div className="d-flex justify-content-end mb-3">
-                            <button 
-                                className="btn btn-primary me-2" 
-                                onClick={() => setActiveComponent('login')}
-                            >
-                                Login
-                            </button>
-                            <button 
-                                className="btn btn-secondary" 
-                                onClick={() => setActiveComponent('register')}
-                            >
-                                Register
-                            </button>
+                            <Login 
+                                onLogin={(email, role) => { 
+                                    console.log(email);
+                                    setUseId(email);  // This should now correctly reference the function
+                                    setUserRole(role);
+                                    localStorage.setItem(role === 'student' ? 'student_id' : 'employer_id', email);
+                                }} 
+                            />
+                            <Register />
                         </div>
-
-                        {/* Conditionally render Login or Register component */}
-                        {activeComponent === 'login' && <Login />}
-                        {activeComponent === 'register' && <Register />}
                     </div>
                 )}
             </div>

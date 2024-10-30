@@ -2,9 +2,9 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 const NavbarComp = ({ handleLogout, id }) => {
-    console.log(id)
+    // console.log(id)
     const id1=localStorage.getItem("employer_id")
-    console.log(id1)
+    // console.log(id1)
     return (
         <div className="App">
             <nav className="navbar navbar-expand-lg navbar-dark bg-dark p-3 fs-4">

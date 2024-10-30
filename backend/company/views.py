@@ -235,7 +235,7 @@ from users.models import StudentUser  # Import StudentUser from the users app
 from django.http import JsonResponse
 from users.views import user_profile  # Adjust this import based on your project structure
 from django.test import RequestFactory  # Import RequestFactory
-
+from .models import RequiredSkills
 @api_view(['POST'])
 def create_application(request):
     serializer = ApplicationSerializer(data=request.data)
@@ -247,54 +247,46 @@ def create_application(request):
 
         # Fetch job details
         try:
-            job = Job.objects.get(id=job_id)  # Fetch job from the same app
+            job = Job.objects.get(id=job_id)
         except Job.DoesNotExist:
             return Response({"error": "Job not found."}, status=status.HTTP_404_NOT_FOUND)
 
         # Fetch mandatory skills for the job
-        mandatory_skills = job.mandatory_skills.all()  # Adjust based on your Job model's relationship to Skills
-
+        mandatory_skills = RequiredSkills.objects.filter(job=job, mandatory_flag=True).values_list('skill_name', flat=True)
+        print(mandatory_skills)
         # Fetch student details using the existing user_profile function
         factory = RequestFactory()
-        student_request = factory.get(f'/api/profile/{student_id}/')  # Adjust URL as necessary
-        student_response = user_profile(student_request, student_id)  # Call the user_profile function
+        student_request = factory.get(f'/api/profile/{student_id}/')
+        student_response = user_profile(student_request, student_id)
         
         # Extract data from the JsonResponse
-        student_data = student_response.content  # Get the content of the response
-        student_data = json.loads(student_data)  # Convert bytes to JSON
-        
-        # Get student skills
-        student_skills = set(student_data['skills'])  # Adjust based on your user_profile function's response structure
+        student_data = json.loads(student_response.content)
+        student_skills = set(skill['skill_name'] for skill in student_data['skills'])  # Adjust key name if needed
 
         # Check if student has all mandatory skills
         missing_skills = [skill for skill in mandatory_skills if skill not in student_skills]
-
         if missing_skills:
             return Response(
                 {"error": "Student is missing the following mandatory skills: " + ", ".join(missing_skills)},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        # Create the application
-        application = serializer.save()  # Save the application
-
-        # Prepare the response data
+        # Save the application and prepare the response data
+        application = serializer.save()
         response_data = {
             "application": serializer.data,
-            "student": student_data['personal_info'],  # Adjust based on what you need
+            "student": student_data['personal_info'],
             "job": {
                 "id": job.id,
-                "job_name": job.job_name,  # Adjust based on your Job fields
-                "job_role": job.job_role,  # Adjust based on your Job fields
-                "company_id": job.company_id,  # Adjust based on your Job fields
+                "job_name": job.job_name,
+                "job_role": job.job_role,
+                "company_id": job.company_id,
             },
         }
         
         return Response(response_data, status=status.HTTP_201_CREATED)
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
 
 
 @api_view(['GET'])
