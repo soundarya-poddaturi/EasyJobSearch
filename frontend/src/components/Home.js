@@ -11,6 +11,7 @@ export const Home = ({ setUseId, setUserRole }) => {
         const studentId = localStorage.getItem('student_id');
         const employerId = localStorage.getItem('employer_id');
         setIsLoggedIn(!!studentId || !!employerId);
+        console.log(!!studentId || !!employerId)
     }, []);
 
     return (
@@ -22,6 +23,7 @@ export const Home = ({ setUseId, setUserRole }) => {
                 </div> */}
                 
                 {/* Login/Register section on the right side if no user is logged in */}
+                <h1>HELOOO</h1>
                 {!isLoggedIn && (
                     <div className="">
                         <div className="d-flex justify-content-end mb-3">

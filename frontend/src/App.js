@@ -17,10 +17,11 @@ import SingleApplicationDetails from './components/SingleApplicationDetails';
 import AppliedJobs from './components/AppliedJobs';
 import JobDetails from './components/JobDetails';
 import Home from './components/Home';
+import { PageNotFound } from './components/PageNotFound';
 
 function App() {
     const [userId, setUseId] = useState(localStorage.getItem('student_id') || localStorage.getItem('employer_id'));
-    const [userRole, setUserRole] = useState(localStorage.getItem('student_id') ? 'student' :localStorage.getItem('student_id') ? 'employer':null);
+    const [userRole, setUserRole] = useState(localStorage.getItem('student_id') ? 'student' : localStorage.getItem('employer_id') ? 'employer' : null);
     const [companyId, setCompanyId] = useState(localStorage.getItem('employerId')); // Retrieve company ID from local storage
 
     return (
@@ -35,47 +36,57 @@ function App() {
                 />
 
                 <Routes>
-
-
-
-                    {/* Student Routes */}
-                    {userRole === 'student' && userId && (
-                        <>
-                            <Route path="/profile" element={<UserProfile id={userId} />} />
-                            <Route path="/applied" element={<AppliedJobs />} />
-                            <Route path="/job-list" element={<JobList />} />
-                            <Route path="/job-details/:jobId" element={<JobDetails />} />
-                        </>
-                    )}
-
-                    {/* Employer Routes */}
-                    {userRole === 'employer' && userId && (
-                        <>
-                            <Route path="/create-job" element={<CreateJob id={userId} />} />
-                            <Route path="/job-listbycname/:id" element={<Joblist_bycname id={userId} />} />
-                            <Route path="/company/jobs/:jobId/applications" element={<ApplicationDetails />} />
-                            <Route path="/company/jobs/:appId" element={<SingleApplicationDetails />} />
-                        </>
-                    )}
-
-
-                  
-                        {/* Common Routes */}
-                        <Route path="/register" element={<Register />} />
-                        <Route path="/login" element={
-                            <Login
-                                onLogin={(email, role) => {
-                                    setUseId(email);
-                                    setUserRole(role);
-                                    localStorage.setItem(role === 'student' ? 'student_id' : 'employer_id', email);
-                                }}
-                            />
-                        } />
-
-                        {/* Redirect to Home if no userId */}
+                    {/* Redirect to Home if not logged in */}
+                    {!userId ? (
                         <Route path="*" element={<Home setUseId={setUseId} setUserRole={setUserRole} />} />
-    
+                    ) : (
+                        <>
+                            {/* Student Routes */}
+                            {userRole === 'student' && (
+                                <>
+                                    <Route path="/profile" element={<UserProfile id={userId} />} />
+                                    <Route path="/applied" element={<AppliedJobs />} />
+                                    <Route path="/job-list" element={<JobList />} />
+                                    <Route path="/job-details/:jobId" element={<JobDetails />} />
+                                    {/* Catch-all for employer routes if accessed by student */}
+                                    <Route path="/create-job" element={<PageNotFound />} />
+                                    <Route path="/job-listbycname/:id" element={<PageNotFound />} />
+                                    <Route path="/company/jobs/:jobId/applications" element={<PageNotFound />} />
+                                    <Route path="/company/jobs/:appId" element={<PageNotFound />} />
+                                </>
+                            )}
 
+                            {/* Employer Routes */}
+                            {userRole === 'employer' && (
+                                <>
+                                    <Route path="/create-job" element={<CreateJob id={userId} />} />
+                                    <Route path="/job-listbycname/:id" element={<Joblist_bycname id={userId} />} />
+                                    <Route path="/company/jobs/:jobId/applications" element={<ApplicationDetails />} />
+                                    <Route path="/company/jobs/:appId" element={<SingleApplicationDetails />} />
+                                    {/* Catch-all for student routes if accessed by employer */}
+                                    <Route path="/profile" element={<PageNotFound />} />
+                                    <Route path="/applied" element={<PageNotFound />} />
+                                    <Route path="/job-list" element={<PageNotFound />} />
+                                    <Route path="/job-details/:jobId" element={<PageNotFound />} />
+                                </>
+                            )}
+                        </>
+                    )}
+
+                    {/* Common Routes */}
+                    <Route path="/register" element={<Register />} />
+                    <Route path="/" element={<Home setUseId={setUseId} setUserRole={setUserRole} />} />
+                    <Route path="/login" element={
+                        <Login
+                            onLogin={(email, role) => {
+                                setUseId(email);
+                                setUserRole(role);
+                                localStorage.setItem(role === 'student' ? 'student_id' : 'employer_id', email);
+                            }}
+                        />
+                    } />
+
+                    <Route path="*" element={<PageNotFound />} />
                 </Routes>
             </div>
         </Router>
@@ -85,8 +96,7 @@ function App() {
 // Component to handle Navbar and logout functionality
 const NavbarWrapper = ({ userId, userRole, setUseId, setUserRole }) => {
     const navigate = useNavigate();
-    // console.log(userRole)
-    // console.log(userId)
+    
     const handleLogout = () => {
         localStorage.removeItem('student_id');
         localStorage.removeItem('employer_id');
@@ -94,16 +104,18 @@ const NavbarWrapper = ({ userId, userRole, setUseId, setUserRole }) => {
         setUserRole(null);
         navigate('/');
     };
-    if(userRole==null)
-        return null
-
+    
     return (
         <>
-                {
+            {
                 userRole === 'student' ? (
                     <NavbarStud userId={userId} handleLogout={handleLogout} />
                 ) : (
-                    <NavbarComp handleLogout={handleLogout} id={userId} />
+                    userRole === 'employer' ? (
+                        <NavbarComp handleLogout={handleLogout} id={userId} />
+                    ) : (
+                       <></>
+                    )
                 )
             }
         </>

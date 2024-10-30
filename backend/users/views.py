@@ -481,20 +481,20 @@ def manage_education(request, id):
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated
 from .models import Resume, StudentUser
 
 class ResumeView(APIView):
-    permission_classes = [IsAuthenticated]
+    # Remove the permission requirement if you don't want authentication
+    # permission_classes = [IsAuthenticated]
 
     def get(self, request, student_id):
-        print(student_id,"in resume get")
+        print(student_id, "in resume get")
         try:
             user = StudentUser.objects.get(id=student_id)
             resume = Resume.objects.get(user_profile=user)
             return Response({
                 'user_profile': user.id,
-                'pdf_file': resume.pdf_file.url if resume.pdf_file else None
+                'file': resume.file.url if resume.file else None
             }, status=status.HTTP_200_OK)
         except StudentUser.DoesNotExist:
             return Response({'error': 'Student not found'}, status=status.HTTP_404_NOT_FOUND)
@@ -502,39 +502,58 @@ class ResumeView(APIView):
             return Response({'error': 'Resume not found'}, status=status.HTTP_404_NOT_FOUND)
 
     def post(self, request, student_id):
-        print(student_id,"in resume post")
+        print(student_id, "in resume post")
         try:
+            # Ensure `user` is an instance of `StudentUser`
+            # print("last")
             user = StudentUser.objects.get(id=student_id)
+            print(f"User instance retrieved: {user}")
+
+            # Check if resume already exists for the user
             if Resume.objects.filter(user_profile=user).exists():
-                return Response({'error': 'Resume already exists'}, status=status.HTTP_400_BAD_REQUEST)
-            
-            pdf_file = request.FILES.get('pdf_file')
-            resume = Resume.objects.create(user_profile=user, pdf_file=pdf_file)
+                return Response({'error': 'Resume already exists. Please update it instead.'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Retrieve file from request
+            print("hfghsg")
+            pdf_file = request.FILES.get('file')  
+            if not pdf_file:
+                return Response({'error': 'No file uploaded.'}, status=status.HTTP_400_BAD_REQUEST)
+            print("hffdgfghghsg")
+            # Create new Resume instance
+            resume = Resume.objects.create(user_profile=user, file=pdf_file)
+            print("fdgfghghsg")
             return Response({
                 'message': 'Resume created successfully',
                 'user_profile': user.id,
-                'pdf_file': resume.pdf_file.url if resume.pdf_file else None
+                'file': resume.file.url if resume.file else None
             }, status=status.HTTP_201_CREATED)
+        
         except StudentUser.DoesNotExist:
             return Response({'error': 'Student not found'}, status=status.HTTP_404_NOT_FOUND)
 
     def put(self, request, student_id):
+        print("in resume put")
         try:
             user = StudentUser.objects.get(id=student_id)
             resume = Resume.objects.get(user_profile=user)
-            pdf_file = request.FILES.get('pdf_file')
-            if pdf_file:
-                resume.pdf_file = pdf_file
-                resume.save()
+
+            pdf_file = request.FILES.get('file')
+            if not pdf_file:
+                return Response({'error': 'No file uploaded for update.'}, status=status.HTTP_400_BAD_REQUEST)
+
+            resume.file = pdf_file
+            resume.save()
+
             return Response({
                 'message': 'Resume updated successfully',
                 'user_profile': user.id,
-                'pdf_file': resume.pdf_file.url if resume.pdf_file else None
+                'file': resume.file.url if resume.file else None
             }, status=status.HTTP_200_OK)
+        
         except StudentUser.DoesNotExist:
             return Response({'error': 'Student not found'}, status=status.HTTP_404_NOT_FOUND)
         except Resume.DoesNotExist:
-            return Response({'error': 'Resume not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'error': 'Resume not found. Please create it first.'}, status=status.HTTP_404_NOT_FOUND)
 
     def delete(self, request, student_id):
         try:
@@ -542,6 +561,7 @@ class ResumeView(APIView):
             resume = Resume.objects.get(user_profile=user)
             resume.delete()
             return Response({'message': 'Resume deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
+        
         except StudentUser.DoesNotExist:
             return Response({'error': 'Student not found'}, status=status.HTTP_404_NOT_FOUND)
         except Resume.DoesNotExist:
@@ -555,6 +575,7 @@ from .serializers import SkillsSerializer
 
 class AddSkillView(APIView):
     def post(self, request, student_id):
+        print(student_id)
         skill_name = request.data.get('skill_name')
 
         if not student_id or not skill_name:
@@ -606,3 +627,103 @@ class AddSkillView(APIView):
             return JsonResponse({'message': 'Skill deleted successfully', 'id': skill_id}, status=200)
         except Skills.DoesNotExist:
             return JsonResponse({'error': 'Skill not found'}, status=404)
+        
+
+import os
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.parsers import MultiPartParser, FormParser
+from .serializers import ResumeSerializer
+from .models import Resume, StudentUser
+from rest_framework import status
+import PyPDF2
+from docx import Document
+from groq import Groq
+from company.models import Job  # Adjust the import if the Job model is elsewhere
+
+class ResumeMatchView(APIView):
+    parser_classes = [MultiPartParser, FormParser]
+
+    def post(self, request, job_id, format=None):
+        try:
+            # Load Groq API key from environment variable
+            groq_client = Groq(api_key = os.getenv("GROQ_API_KEY")
+)
+            print("GROQ_API_KEY:", os.getenv("GROQ_API_KEY"))
+
+            # Ensure API key is loaded correctly
+            if not os.getenv("GROQ_API_KEY"):
+                return Response({'error': 'GROQ_API_KEY not found in environment variables'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+            student_id = request.data.get("student_id")
+            student = StudentUser.objects.get(id=student_id)
+            job = Job.objects.get(id=job_id)
+
+            # Check if there's an uploaded resume in the request
+            file_obj = request.FILES.get('file')
+            resume_text = ""
+
+            if not file_obj:
+                # If no resume uploaded, check if the student already has a resume in profile
+                if student.resumes.exists():
+                    file_obj = student.resumes.latest('uploaded_at').file
+                else:
+                    return Response({'error': 'No resume found. Please upload a resume.'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Extract text from the resume file
+            file_extension = os.path.splitext(file_obj.name)[1].lower()
+
+            if file_extension == '.pdf':
+                pdf_reader = PyPDF2.PdfReader(file_obj)
+                for page in pdf_reader.pages:
+                    resume_text += page.extract_text()
+            elif file_extension == '.docx':
+                file_obj.seek(0)
+                document = Document(file_obj)
+                resume_text = '\n'.join([para.text for para in document.paragraphs])
+            else:
+                return Response({'error': 'Unsupported file format.'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Check if resume text was extracted
+            if not resume_text.strip():
+                return Response({'error': 'Could not extract text from the resume.'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Prepare the prompt for Groq
+            prompt = (
+                "You are a resume screening assistant.\n"
+                "Given the following resume and job description, rate the match percentage between them "
+                "on a scale from 0 to 100, where 0 means no match and 100 means perfect match. "
+                "Provide only the numeric percentage in your response.\n\n"
+                "Resume:\n"
+                f"{resume_text}\n\n"
+                "Job Description:\n"
+                f"{job.job_description}\n\n"
+                "Match Percentage:"
+            )
+
+            # Call the Groq API for chat completion
+            try:
+                response = groq_client.chat.completions.create(
+                    messages=[{
+                        "role": "user",
+                        "content": prompt,
+                    }],
+                    model="llama3-8b-8192",  # Example model, replace if needed
+                )
+            except Exception as e:
+                print(f"Error with Groq API: {e}")
+                return Response({'error': 'Groq API failed'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+            # Extract the match percentage from the response
+            match_percentage_text = response.choices[0].message.content.strip()
+            match_percentage = float(match_percentage_text)
+
+            return Response({'match_percentage': match_percentage}, status=status.HTTP_200_OK)
+
+        except StudentUser.DoesNotExist:
+            return Response({'error': 'Student not found'}, status=status.HTTP_404_NOT_FOUND)
+        except Job.DoesNotExist:
+            return Response({'error': 'Job not found'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            print(f"Error processing request: {str(e)}")
+            return Response({'error': f'Internal Server Error: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
