@@ -14,7 +14,9 @@ const JobDetails = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('student_id'));
     const [studentId, setStudentId] = useState(localStorage.getItem('student_id'));
     const [showLogin, setShowLogin] = useState(!isLoggedIn);
-
+    const [resumeScore, setResumeScore] = useState(null);
+    const [resumeFile, setResumeFile] = useState(null);
+    const [showFileUpload, setShowFileUpload] = useState(false);
     useEffect(() => {
         const fetchAppliedJobs = async () => {
             try {
@@ -52,7 +54,31 @@ const JobDetails = () => {
     const handleAnswerChange = (questionId, answerText) => {
         setAnswers((prevAnswers) => ({ ...prevAnswers, [questionId]: answerText }));
     };
+    const handleCheckResumeScore = async () => {
+        try {
+            const formData = new FormData();
+            formData.append('student_id', studentId);
 
+            if (resumeFile) {
+                formData.append('file', resumeFile);  // Append file to FormData
+            }
+            console.log(jobId)
+            const response = await axios.post(`http://localhost:8000/api/resume/match/${jobId}/`, formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+
+            setResumeScore(response.data.match_percentage);
+            alert(`Resume match score: ${response.data.match_percentage}%`);
+            setShowFileUpload(false);
+        } catch (err) {
+            if (err.response && err.response.data.error === 'No resume file uploaded.') {
+                setShowFileUpload(true); // Show file upload if no resume found
+                alert("No resume found. Please choose a file to upload.");
+            } else {
+                alert("Error calculating resume score");
+            }
+        }
+    };
     const handleSubmitApplication = async (jobId) => {
         // Check if all answer fields are filled
         const allAnswersFilled = Object.values(answers).every(answer => answer.trim() !== '');
@@ -66,7 +92,7 @@ const JobDetails = () => {
             question_id: questionId,
             answer_text: answers[questionId],
         }));
-    
+
         try {
             await axios.post(`http://localhost:8000/company/create_application/`, {
                 student_id: studentId,
@@ -111,7 +137,13 @@ const JobDetails = () => {
                     <Login onLogin={handleLogin} />
                 </div>
             )}
-
+            {resumeScore && <p>{resumeScore}</p>}
+            <button
+                onClick={() => handleCheckResumeScore(job.id)}
+                className="btn btn-info mb-3"
+            >
+                Check Resume Score
+            </button>
             <div className="card">
                 <div className="card-body">
                     <h3 className="card-title">
@@ -125,7 +157,7 @@ const JobDetails = () => {
                     <p className="card-text"><strong>Job Type:</strong> {job.type}</p>
                     <p className="card-text"><strong>Salary:</strong> ₹{job.salary}</p>
                     <p className="card-text"><strong>Last Date to Apply:</strong> {job.last_date}</p>
-                    
+
                     {/* Required Skills */}
                     <h5>Required Skills</h5>
                     {/* Mandatory Skills */}
@@ -137,7 +169,7 @@ const JobDetails = () => {
                             </li>
                         ))}
                     </ul>
-                    
+
                     {/* Preferred Skills */}
                     <h6>Preferred Skills</h6>
                     <ul className="">
@@ -152,8 +184,8 @@ const JobDetails = () => {
                     {isApplied ? (
                         <button className="btn btn-secondary mb-3" disabled>Applied</button>
                     ) : (
-                        <button 
-                            onClick={() => handleApply(currentJobId)} 
+                        <button
+                            onClick={() => handleApply(currentJobId)}
                             className="btn btn-primary mb-3"
                         >
                             {selectedJobId === currentJobId ? 'Cancel' : 'Apply'}
@@ -168,19 +200,19 @@ const JobDetails = () => {
                                 {job.questions.map((question) => (
                                     <li key={question.id} className="list-group-item">
                                         <p>{question.question_text}</p>
-                                        <input 
-                                            type="text" 
-                                            placeholder="Your answer" 
-                                            value={answers[question.id] || ''} 
-                                            onChange={(e) => handleAnswerChange(question.id, e.target.value)} 
+                                        <input
+                                            type="text"
+                                            placeholder="Your answer"
+                                            value={answers[question.id] || ''}
+                                            onChange={(e) => handleAnswerChange(question.id, e.target.value)}
                                             className="form-control mb-2"
                                             required
                                         />
                                     </li>
                                 ))}
                             </ul>
-                            <button 
-                                onClick={() => handleSubmitApplication(currentJobId)} 
+                            <button
+                                onClick={() => handleSubmitApplication(currentJobId)}
                                 className="btn btn-success"
                             >
                                 Submit Application

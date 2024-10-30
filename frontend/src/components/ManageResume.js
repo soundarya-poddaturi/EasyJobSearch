@@ -7,7 +7,7 @@ const ManageResume = ({ userId }) => {
     const [loading, setLoading] = useState(false);         // Loading state for actions
     const [error, setError] = useState(null);              // Error message state
 
-    // Fetch the resume when component mounts
+    // Fetch the resume when the component mounts or userId changes
     useEffect(() => {
         fetchResume();
     }, [userId]);
@@ -33,19 +33,20 @@ const ManageResume = ({ userId }) => {
         if (!selectedFile) return alert('Please select a file to upload');
         
         const formData = new FormData();
-        formData.append('pdf_file', selectedFile);
+        formData.append('file', selectedFile);  // Ensure the key here matches what the backend expects
 
         try {
             setLoading(true);
             const response = resume
-            console.log("first")
                 ? await axios.put(`http://localhost:8000/api/resume/${userId}/`, formData)
                 : await axios.post(`http://localhost:8000/api/resume/${userId}/`, formData);
 
+            console.log('Upload response:', response.data);  // Debugging line
             setResume(response.data);
             setSelectedFile(null);
             alert('Resume uploaded successfully');
         } catch (err) {
+            console.error("Upload error:", err.response?.data || err.message);  // Debugging line
             setError(err.response?.data?.error || 'Failed to upload resume');
         } finally {
             setLoading(false);
@@ -57,10 +58,11 @@ const ManageResume = ({ userId }) => {
         
         try {
             setLoading(true);
-            await axios.delete(`/api/resume/${userId}/`);
+            await axios.delete(`http://localhost:8000/api/resume/${userId}/`);
             setResume(null);
             alert('Resume deleted successfully');
         } catch (err) {
+            console.error("Delete error:", err.response?.data || err.message);  // Debugging line
             setError(err.response?.data?.error || 'Failed to delete resume');
         } finally {
             setLoading(false);
@@ -77,9 +79,11 @@ const ManageResume = ({ userId }) => {
             {resume ? (
                 <div>
                     <p>Current Resume:</p>
-                    <a href={resume.pdf_file} target="_blank" rel="noopener noreferrer">
-                        View Resume
-                    </a>
+                    {/* Ensure resume.file is a valid URL */}
+                    {/* Adjust the URL format if necessary */}
+                    <a href={`http://localhost:8000${resume.file}`} target="_blank" rel="noopener noreferrer">
+    View Resume
+</a>
                     <button className="btn btn-danger mx-2" onClick={handleDelete}>
                         Delete Resume
                     </button>
@@ -90,7 +94,7 @@ const ManageResume = ({ userId }) => {
 
             {/* File input and upload/edit button */}
             <div className="mt-3">
-                <input type="file" onChange={handleFileChange} />
+                <input type="file" accept=".pdf" onChange={handleFileChange} />
                 <button
                     className="btn btn-primary mx-2"
                     onClick={handleUpload}

@@ -11,7 +11,8 @@ from .views import (
     manage_education,
     user_profile,
     ResumeView,
-    AddSkillView
+    AddSkillView,
+    ResumeMatchView
     
 )
 
@@ -27,6 +28,6 @@ urlpatterns = [
     path('education/manage/<int:id>/', manage_education, name='manage_education'),
     path('resume/<int:student_id>/', ResumeView.as_view(), name='resume-detail'),
     path('skills/manage/<int:student_id>/', AddSkillView.as_view(), name='add-skill'),
-
+    path('resume/match/<int:job_id>/', ResumeMatchView.as_view(), name='resume-match'),
     
 ]
