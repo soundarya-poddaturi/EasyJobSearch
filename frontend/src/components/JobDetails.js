@@ -20,9 +20,25 @@ const JobDetails = () => {
     useEffect(() => {
         const fetchAppliedJobs = async () => {
             try {
-                const appliedResponse = await axios.get(`http://localhost:8000/company/applications/student/${studentId}/`);
-                console.log("Applied Jobs IDs:", appliedResponse.data.application_ids);
-                setAppliedJobs(appliedResponse.data.application_ids); // Store job IDs directly
+                if (studentId) {
+                    // Get application IDs for the student
+                    const applicationIdsResponse = await axios.get(`http://localhost:8000/company/applications/student/${studentId}/`);
+                    const applicationIds = applicationIdsResponse.data.application_ids;
+    
+                    // Fetch job IDs for each application
+                    const appliedJobIds = await Promise.all(
+                        applicationIds.map(async (appId) => {
+                            const appResponse = await axios.get(`http://localhost:8000/company/applications/${appId}/`);
+                            return appResponse.data.job_id; // Extract job_id directly
+                        })
+                    );
+    
+                    console.log(appliedJobIds);
+                    setAppliedJobs(appliedJobIds);
+                }
+                // const appliedResponse = await axios.get(`http://localhost:8000/company/applications/student/${studentId}/`);
+                // console.log("Applied Jobs IDs:", appliedResponse.data.application_ids);
+                // setAppliedJobs(appliedResponse.data.application_ids); // Store job IDs directly
             } catch (err) {
                 setError('Error fetching applied jobs');
             }
@@ -35,7 +51,7 @@ const JobDetails = () => {
         const fetchJob = async () => {
             try {
                 const jobDetails = await axios.get(`http://localhost:8000/company/jobs/${jobId}/`);
-                console.log("Job Details:", jobDetails.data);
+               
                 setJob(jobDetails.data);
             } catch (err) {
                 setError('Error fetching job details');
@@ -62,7 +78,7 @@ const JobDetails = () => {
             if (resumeFile) {
                 formData.append('file', resumeFile);  // Append file to FormData
             }
-            console.log(jobId)
+           
             const response = await axios.post(`http://localhost:8000/api/resume/match/${jobId}/`, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
@@ -82,8 +98,8 @@ const JobDetails = () => {
     const handleSubmitApplication = async (jobId) => {
         // Check if all answer fields are filled
         const allAnswersFilled = Object.values(answers).every(answer => answer.trim() !== '');
-        // console.log(allAnswersFilled)
-        if (allAnswersFilled) {
+        
+        if (!allAnswersFilled) {
             setError('Please fill in all required answer fields.'); // Set error message
             return; // Prevent submission if fields are empty
         }
@@ -94,6 +110,7 @@ const JobDetails = () => {
         }));
 
         try {
+          
             await axios.post(`http://localhost:8000/company/create_application/`, {
                 student_id: studentId,
                 job_id: jobId,
@@ -126,67 +143,85 @@ const JobDetails = () => {
 
     // Convert jobId from useParams to number to ensure exact match
     const currentJobId = Number(jobId);
+   
     const isApplied = appliedJobs.includes(currentJobId);
 
     return (
         <div className="container mt-5">
-            <h2>Job Details</h2>
+
             {showLogin && (
                 <div className="mb-4">
                     <h4>Please Login to Apply for Jobs</h4>
                     <Login onLogin={handleLogin} />
                 </div>
             )}
-            {resumeScore && <p>{resumeScore}</p>}
-            <button
-                onClick={() => handleCheckResumeScore(job.id)}
-                className="btn btn-info mb-3"
-            >
-                Check Resume Score
-            </button>
-            <div className="card">
+
+            <div className='d-flex justify-content-between '>
+                <button
+                    onClick={() => handleCheckResumeScore(job.id)}
+                    className="btn btn-dark mb-3"
+                >
+                    Check Resume Score
+                </button>
+                <div>
+                    {resumeScore && (
+                        <>
+                            <strong>Resume Score :<span className='alert alert-dark w-25 rounded-5'>{resumeScore}</span></strong>
+                            
+                        </>)
+
+                    }
+                </div>
+            </div>
+            <div className="shadow p-4 bg-white">
                 <div className="card-body">
                     <h3 className="card-title">
-                        {job.job_name} <span className="badge bg-secondary">{job.job_role}</span>
+                        {job.job_name}
                     </h3>
-                    <h5 className="card-subtitle mb-2 text-muted">
-                        {job.company_details?.name} - {job.company_details?.location}
+                    <h5 className="card-subtitle mb-2 text-muted mb-5">
+                        {job.company_details?.name}
                     </h5>
-                    <p className="card-text">{job.job_description}</p>
-                    <p className="card-text"><strong>Experience:</strong> {job.experience} years</p>
-                    <p className="card-text"><strong>Job Type:</strong> {job.type}</p>
-                    <p className="card-text"><strong>Salary:</strong> ₹{job.salary}</p>
-                    <p className="card-text"><strong>Last Date to Apply:</strong> {job.last_date}</p>
+                    <div className='ms-2'>
+                        <p className="card-text"><strong>Location:</strong> {job.company_details?.location}</p>
+                        <p className="card-text"><strong>Experience:</strong> {job.experience} years</p>
+                        <p className="card-text"><strong>Job Type:</strong> {job.type}</p>
+                        <p className="card-text"><strong>Salary:</strong> ₹{job.salary}Lpa</p>
+                        <p className="card-text mb-5"><strong>Last Date to Apply:</strong> {job.last_date}</p>
+                    </div>
+                    <p><strong>Job Description</strong></p>
+                    <p className="card-text mb-5">{job.job_description}</p>
 
                     {/* Required Skills */}
                     <h5>Required Skills</h5>
                     {/* Mandatory Skills */}
                     <h6>Mandatory Skills</h6>
-                    <ul className="mb-3">
+                    <div className="d-flex flex-wrap mb-3">
                         {job.required_skills?.filter(skill => skill.mandatory_flag).map((skill, index) => (
-                            <li key={index} className="">
+                            <p key={index} className="alert alert-dark d-inline-block me-2 height mb-2 w-auto">
                                 {skill.skill_name}
-                            </li>
+                            </p>
                         ))}
-                    </ul>
+                    </div>
+
 
                     {/* Preferred Skills */}
                     <h6>Preferred Skills</h6>
-                    <ul className="">
+                    <div className="d-flex flex-wrap mb-3">
                         {job.required_skills?.filter(skill => !skill.mandatory_flag).map((skill, index) => (
-                            <li key={index} className="">
+                            <p key={index} className="alert alert-success d-inline-block me-2 mb-2 w-auto">
                                 {skill.skill_name}
-                            </li>
+                            </p>
                         ))}
-                    </ul>
+                    </div>
+
 
                     {/* Apply Button */}
                     {isApplied ? (
-                        <button className="btn btn-secondary mb-3" disabled>Applied</button>
+                        <button className="btn btn-secondary mb-3  w-50" disabled>Applied</button>
                     ) : (
                         <button
                             onClick={() => handleApply(currentJobId)}
-                            className="btn btn-primary mb-3"
+                            className="btn btn-dark mb-3 w-50"
                         >
                             {selectedJobId === currentJobId ? 'Cancel' : 'Apply'}
                         </button>
@@ -195,17 +230,18 @@ const JobDetails = () => {
                     {/* Show questions and input fields */}
                     {selectedJobId === currentJobId && isLoggedIn && job.questions && !isApplied && (
                         <div>
+
                             <h5>Answer the following questions:</h5>
-                            <ul className="list-group mb-3">
+                            <ul className="list-group border-0  mb-3">
                                 {job.questions.map((question) => (
-                                    <li key={question.id} className="list-group-item">
+                                    <li key={question.id} className="list-group-item bg-body-tertiary">
                                         <p>{question.question_text}</p>
                                         <input
                                             type="text"
                                             placeholder="Your answer"
                                             value={answers[question.id] || ''}
                                             onChange={(e) => handleAnswerChange(question.id, e.target.value)}
-                                            className="form-control mb-2"
+                                            className="form-control mb-2 border-0"
                                             required
                                         />
                                     </li>

@@ -41,7 +41,7 @@ const ManageResume = ({ userId }) => {
                 ? await axios.put(`http://localhost:8000/api/resume/${userId}/`, formData)
                 : await axios.post(`http://localhost:8000/api/resume/${userId}/`, formData);
 
-            console.log('Upload response:', response.data);  // Debugging line
+           
             setResume(response.data);
             setSelectedFile(null);
             alert('Resume uploaded successfully');
@@ -70,22 +70,25 @@ const ManageResume = ({ userId }) => {
     };
 
     return (
-        <div className="manage-resume">
-            <h3>Manage Resume</h3>
+        <div className='d-flex justify-content-center align-items-center my-3 shadow bg-white p-4'>
+        <div className="manage-resume  " >
+            <div className='d-flex mb-3 justify-content-center text-uppercase text-muted '><h3>Manage Resume</h3></div>
+            
             {loading && <p>Loading...</p>}
             {error && <p className="text-danger">{error}</p>}
 
             {/* Display existing resume */}
             {resume ? (
-                <div>
-                    <p>Current Resume:</p>
+                <div className="d-flex justify-content-between">
+                    <span>Resume:</span>
                     {/* Ensure resume.file is a valid URL */}
                     {/* Adjust the URL format if necessary */}
                     <a href={`http://localhost:8000${resume.file}`} target="_blank" rel="noopener noreferrer">
-    View Resume
-</a>
-                    <button className="btn btn-danger mx-2" onClick={handleDelete}>
-                        Delete Resume
+                        View Resume
+                    </a>
+
+                    <button className="btn btn-outline-danger fas fa-trash mx-2 border-0" onClick={handleDelete}>
+                        
                     </button>
                 </div>
             ) : (
@@ -93,16 +96,17 @@ const ManageResume = ({ userId }) => {
             )}
 
             {/* File input and upload/edit button */}
-            <div className="mt-3">
+            <div className="mt-3 text-center">
                 <input type="file" accept=".pdf" onChange={handleFileChange} />
                 <button
-                    className="btn btn-primary mx-2"
+                    className="btn btn-warning mx-2"
                     onClick={handleUpload}
                     disabled={!selectedFile || loading}
                 >
                     {resume ? 'Edit Resume' : 'Upload Resume'}
                 </button>
             </div>
+        </div>
         </div>
     );
 };

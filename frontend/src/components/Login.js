@@ -18,8 +18,7 @@ const Login = ({ onLogin }) => {
 
         axios.post(url, { email, password })
             .then(response => {
-                console.log(response.data.user.id);
-                console.log(role);
+              
                 onLogin(response.data.user.id, role); // Pass both email and role here
 
                 // Redirect the user based on their role
@@ -44,12 +43,12 @@ const Login = ({ onLogin }) => {
     };
 
     return (
-        <div className="container mt-5">
-            <div className="row justify-content-center">
-                <div className="col-md-6">
-                    <div className="card">
+        <div className=" col-6 mt-5 bg-white">
+            {/* <div className="row "> */}
+                <div className="">
+                    <div className="p-5 justify-content-center align-items-center">
                         <div className="card-body">
-                            <h2 className="card-title text-center mb-4">Login as {role === 'student' ? 'Student' : 'Employer'}</h2>
+                            <h2 className="card-title text-center mb-4">{role === 'student' ? 'Student' : 'Employer'}'s Login</h2>
                             <form onSubmit={handleSubmit}>
                                 <div className="mb-3">
                                     <label htmlFor="email" className="form-label">Email:</label>
@@ -77,7 +76,7 @@ const Login = ({ onLogin }) => {
                                 <div className="text-center mb-3">
                                     <button
                                         type="button"
-                                        className="btn btn-link"
+                                        className="btn btn-link "
                                         onClick={toggleRole}
                                     >
                                         Login as {role === 'student' ? 'Employer' : 'Student'}
@@ -86,13 +85,15 @@ const Login = ({ onLogin }) => {
 
                                 {error && <p className="text-danger">{error}</p>}
                                 <div className="d-grid">
-                                    <button type="submit" className="btn btn-primary">Login</button>
+                                    <button type="submit" className="btn btn-dark
+                                    
+                                    ">Login</button>
                                 </div>
                             </form>
                         </div>
                     </div>
                 </div>
-            </div>
+            {/* </div> */}
         </div>
     );
 };
