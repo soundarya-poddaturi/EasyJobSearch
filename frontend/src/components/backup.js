@@ -88,18 +88,18 @@ const UserProfile = ({ email }) => {
     const handleSubmit = (event) => {
         event.preventDefault();
         // Handle form submission (e.g., send data to the server)
-        console.log({ name, projects, education, address, certificates, experience });
+       
     };
 
     const saveData = (section) => {
         // Here you would typically send a request to your backend API
-        console.log(`Saving ${section}:`, { 
-            projects, 
-            education, 
-            address, 
-            certificates, 
-            experience 
-        });
+        // console.log(`Saving ${section}:`, { 
+        //     projects, 
+        //     education, 
+        //     address, 
+        //     certificates, 
+        //     experience 
+        // });
         // Set the edit mode to false after saving
         if (section === 'projects') setIsEditingProjects(false);
         else if (section === 'education') setIsEditingEducation(false);

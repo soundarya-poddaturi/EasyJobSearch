@@ -1,38 +1,208 @@
-.App {
-  text-align: center;
+/* General Resets */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+html, body {
+  height: 100%;
+  background-color: rgba(248, 249, 250) !important; /* Background color */
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+/* Full Screen Centering */
+.full-screen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+/* Sidebar Styles */
+.sidebar-wrapper {
+  margin: 0;
+  padding: 0;
+  background-color: white;
+  position: fixed;
+  height: 100%;
+  overflow: auto;
+  transition: width 0.3s; /* Smooth transition for width */
+}
+
+/* Sidebar default and collapsed widths */
+.sidebar-wrapper.col-2 {
+  width: 15.4%;
+}
+.sidebar-wrapper.col-1,
+.sidebar-wrapper.collapsed {
+  width: 100px; /* Width when collapsed */
+}
+
+/* Sidebar Inner Content */
+.sidebar {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  height: 100%;
+  padding-bottom: 20px; /* Optional padding at the bottom */
+}
+
+.sidebar-content {
+  flex: 1; /* Allows this section to grow and take up available space */
+}
+
+.sidebar .logo {
+  display: flex;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
+  align-items: center;
+  height: 60px;
+  font-weight: bold;
+}
+
+/* Link Styles */
+.sidebar a {
+  display: block;
+  color: black;
+  padding: 16px;
+  text-decoration: none;
+}
+
+.sidebar a.active {
+  background-color:  rgba(248, 249, 250) !important;
+  color: rgb(21, 21, 21);
+}
+
+.sidebar a:hover:not(.active) {
+  background-color: #585858;
   color: white;
 }
 
-.App-link {
-  color: #61dafb;
+/* Sidebar collapsed styles */
+.sidebar-wrapper.collapsed .logo {
+  display: none; /* Hide logo when collapsed */
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
+.sidebar-wrapper.collapsed a {
+  text-align: center;
+  padding: 8px; /* Reduce padding for collapsed view */
+  font-size: 14px; /* Adjust font size in collapsed mode */
+}
+
+.sidebar-wrapper.collapsed a::after {
+  display: none; /* Remove hover effects in collapsed mode */
+}
+
+/* Toggle Button Styles */
+.btn-toggle {
+  width: 100%; /* Full width toggle button */
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 20px;
+  text-align: center;
+  padding: 10px;
+}
+
+.sidebar-wrapper.collapsed .btn-toggle {
+  font-size: 24px; /* Increase button size if sidebar is collapsed */
+}
+
+/* Main Content Styles */
+.main-content {
+  transition: margin-left 0.3s;
+  padding: 1px 16px;
+  height: 100%;
+}
+
+.container-fluid {
+  margin-left: 280px; /* Default margin for content */
+}
+
+.main-content.col-10 {
+  margin-left: 15.4%; /* Adjust based on sidebar default width */
+}
+
+.main-content.col-11 {
+  margin-left: 105px; /* Adjust based on collapsed sidebar width */
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 700px) {
+  .sidebar-wrapper {
+    width: 100%;
+    height: auto;
+    position: relative;
   }
-  to {
-    transform: rotate(360deg);
+  .sidebar-wrapper.collapsed {
+    width: 60px; /* Adjust for mobile when collapsed */
   }
+  .main-content {
+    margin-left: 0; /* Reset margin for mobile */
+  }
+}
+
+@media screen and (max-width: 400px) {
+  .sidebar a {
+    text-align: center;
+    float: none;
+  }
+}
+
+/* Tagline and other styles */
+.tagline {
+  height: 0;
+  width: 0;
+}
+
+.box {
+  border: 3px solid #ccc;
+  padding: 0px;
+  border-radius: 12px;
+  display: inline-block;
+  font-weight: 400;
+}
+
+/* Text truncation for two lines */
+.truncate-two-lines {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-height: 3em; /* Ensures it occupies two lines of space */
+  min-height: 3em; /* Ensures it always has the height of two lines */
+}
+
+.height {
+  font-size: larger !important;
+}
+
+/* Additional styles for the logout button */
+.logout {
+  margin-top: auto; /* Pushes the logout button to the bottom */
+  
+}
+.opaque-layer {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: rgb(255, 255, 255);
+  z-index: 20;
+  display: flex;
+  align-items: center; 
+  justify-content: center;
+  width: 45%;
+  transition: transform 0.5s ease;
+  /* background-image: url('/images/Login.svg'); */
+}
+
+
+
+
+.translate-x {
+  transform: translateX(100%); /* Shift to cover the Register side */
 }

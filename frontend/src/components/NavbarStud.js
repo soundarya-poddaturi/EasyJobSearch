@@ -1,47 +1,37 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import { NavLink } from "react-router-dom";
 
-const NavbarStud = ({ userEmail, handleLogout }) => {
+const NavbarStud = ({ userEmail, handleLogout, isSidebarOpen }) => {
     return (
-        <div className="App">
-            <nav className="navbar navbar-expand-lg navbar-dark bg-dark p-3 fs-4">
-                <div className="container-fluid">
-                    <a className="navbar-brand" href="/job-list">HOME</a>
-                    <button 
-                        className="navbar-toggler" 
-                        type="button" 
-                        data-bs-toggle="collapse" 
-                        data-bs-target="#navbarNavDropdown" 
-                        aria-controls="navbarNavDropdown" 
-                        aria-expanded="false" 
-                        aria-label="Toggle navigation">
-                        <span className="navbar-toggler-icon"></span>
-                    </button>
-                    <div className="collapse navbar-collapse" id="navbarNavDropdown">
-                        <ul className="navbar-nav">
-                            {/* <li className="nav-item">
-                                <Link className="nav-link" to="/register">Register</Link>
-                            </li>
-                            <li className="nav-item">
-                                <Link className="nav-link" to="/login">Login</Link>
-                            </li> */}
-                           
-                                <>
-                                    <li className="nav-item">
-                                        <Link className="nav-link" to="/profile">Profile</Link>
-                                    </li>
-                                    <li className="nav-item">
-                                        <Link className="nav-link" to="/applied">Applied Jobs</Link>
-                                    </li>
-                                    <li className="nav-item">
-                                        <button className="nav-link btn" onClick={handleLogout}>Logout</button>
-                                    </li>
-                                </>
-                        
-                        </ul>
-                    </div>
-                </div>
-            </nav>
+        <div className={`sidebar p-0 m-0 ${isSidebarOpen ? 'collapsed' : ''}`}>
+            <div className="sidebar-content">
+                <NavLink
+                    className="nav-link  border-top fs-4 d-flex justify-content-center "
+                    to="/profile"
+                    activeClassName="active "
+                >
+                    {isSidebarOpen ? <i className="fas fa-user p-4 "></i> : "Profile"}
+                </NavLink>
+
+                <NavLink
+                    className="nav-link  fs-4 d-flex justify-content-center"
+                    to="/job-list"
+                    activeClassName="active "
+                    end
+                >
+                    {isSidebarOpen ? <i className="fas fa-home p-4 rounded-5"></i> : "Home"}
+                </NavLink>
+
+                <NavLink
+                    className="nav-link  fs-4 d-flex justify-content-center"
+                    to="/applied"
+                    activeClassName="active "
+                >
+                    {isSidebarOpen ? <i className="fas fa-file-alt p-4"></i> : "Applied Jobs"}
+                </NavLink>
+            </div>
+            <button className="nav-link btn p-3 bg-dark text-white rounded-0 fs-4 w-100" onClick={handleLogout}>
+                {isSidebarOpen ? <i className="fas fa-sign-out-alt p-3"></i> : "Logout"}
+            </button>
         </div>
     );
 };

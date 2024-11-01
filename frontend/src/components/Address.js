@@ -2,12 +2,12 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 const EditableFieldSection = ({ title, fields, values, onChange, isEditing, onSave, onCancel, onEdit, errors }) => (
-    <div className="border p-4 mb-4">
-        <h2>{title}</h2>
+    <div className="bg-white p-4 mb-4 shadow">
+        <h3 className='text-center  text-uppercase text-muted'>{title}</h3>
         <div className="row">
             {fields.map((field) => (
                 <div className="col-md-6 mb-3" key={field}>
-                    <label className="form-label">{field.replace('_', ' ').toUpperCase()}</label>
+                    <label className="form-label text-capitalize">{field.replace('_', ' ')}</label>
                     <input
                         type="text"
                         className={`form-control ${errors[field] ? 'is-invalid' : ''}`}
@@ -21,18 +21,24 @@ const EditableFieldSection = ({ title, fields, values, onChange, isEditing, onSa
             ))}
         </div>
         {isEditing ? (
-            <div>
+            <div className='d-flex flex-row justify-content-center gap-5' >
+                <div className='row'>
                 <button className="btn btn-primary me-2" onClick={onSave}>
-                    Save {title}
+                    Save
                 </button>
+                </div>
+                <div className='row'>
                 <button className="btn btn-secondary" onClick={onCancel}>
                     Cancel Edit
                 </button>
+                </div>
             </div>
         ) : (
+            <div className='d-flex flex-row justify-content-center ' >
             <button className="btn btn-warning" onClick={onEdit}>
                 Edit {title}
             </button>
+            </div>
         )}
     </div>
 );
@@ -140,7 +146,7 @@ const Address = ({ personalInfo, id }) => {
         if (!errors.pincode) {
             try {
                 await axios.post(`http://localhost:8000/api/address/manage/${id}/`, address);
-                console.log('Address data saved:', address);
+               
                 setIsEditingAddress(false);
             } catch (error) {
                 console.error('Error saving address data:', error);
@@ -174,7 +180,7 @@ const Address = ({ personalInfo, id }) => {
         if (!Object.values(combinedErrors).some((error) => error)) {
             try {
                 await axios.put(`http://localhost:8000/api/profile/${id}/`, personalDetails);
-                console.log('Personal details updated:', personalDetails);
+               
                 setIsEditingPersonal(false);
             } catch (error) {
                 console.error('Error updating personal details:', error);

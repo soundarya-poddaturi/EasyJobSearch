@@ -49,25 +49,24 @@ const ManageRecords = ({ recordType, initialRecords, apiEndpoint, fields }) => {
                 errors[field.name] = `${field.placeholder} is required.`;
             }
         });
-        console.log(isNewRecordCurrent)
-        console.log(isEditRecordCurrent)
+      
         if (!isEditRecordCurrent && !isNewRecordCurrent) {
             if ((record.duration_from && !record.duration_to) || (!record.duration_from && record.duration_to)) {
                 errors.duration_from = 'Both start and end dates must be filled, or both left empty.';
                 errors.duration_to = 'Both start and end dates must be filled, or both left empty.';
             }
-            if ( record.duration_from && record.duration_to && new Date(record.duration_from) > new Date(record.duration_to)) {
+            if (record.duration_from && record.duration_to && new Date(record.duration_from) > new Date(record.duration_to)) {
                 errors.duration_from = 'Start date must be earlier than end date.';
                 errors.duration_to = 'End date must be later than start date.';
             }
         }
-        
+
         return errors;
     };
-    
+
     const handleAddRecord = async () => {
         const errors = validateFields(newRecord);
-        console.log(newRecord);
+       
         if (Object.keys(errors).length > 0) {
             setValidationErrors(errors);
             return;
@@ -96,7 +95,7 @@ const ManageRecords = ({ recordType, initialRecords, apiEndpoint, fields }) => {
         }
         setValidationErrors({});
         try {
-            console.log(editRecord)
+          
             await axios.put(`${apiEndpoint}/`, editRecord);
             setRecords(records.map((rec) => (rec.id === editRecord.id ? editRecord : rec)));
             setEditRecord(null);
@@ -131,15 +130,16 @@ const ManageRecords = ({ recordType, initialRecords, apiEndpoint, fields }) => {
         setIsEditRecordCurrent(false);
     };
 
-    const shouldDisplayCheckboxes = recordType !== "Certificate" && recordType !== "Education"; // Exclude for Education
+    const shouldDisplayCheckboxes = recordType !== "Certificate" && recordType !== "Education" && recordType !== "Skill"; // Exclude for Education
 
     return (
-        <div className='container my-4 p-4 border'>
-            <h3 className='text-uppercase text-muted'>{recordType}</h3>
-            <button className='btn btn-link' onClick={() => setShowNewRecordForm(!showNewRecordForm)}>
+        <div className='container border-0 my-2 p-4 border bg-white shadow'>
+            <h3 className='text-uppercase text-muted text-center'>{recordType}</h3>
+            <div className='d-flex justify-content-center'>
+            <button className='btn btn-link mb-3' onClick={() => setShowNewRecordForm(!showNewRecordForm)}>
                 {showNewRecordForm ? `Hide New ${recordType} Form` : `Add +`}
             </button>
-
+            </div>
             {validationErrors.global && (
                 <div className="alert alert-danger">{validationErrors.global}</div>
             )}
@@ -179,49 +179,54 @@ const ManageRecords = ({ recordType, initialRecords, apiEndpoint, fields }) => {
                             </div>
                         ))}
                     </div>
-                    <button className='btn btn-primary me-2' onClick={handleAddRecord}>
+                    <div className=' d-flex justify-content-center'>
+                    <button className=' btn btn-dark me-2 mb-4' onClick={handleAddRecord}>
                         Add {recordType}
                     </button>
+                    </div>
                 </div>
             )}
 
             {/* Existing Records Display */}
-            {records.length === 0 ? (
-                <p>No records found.</p>
-            ) : (
-                <ul className='list-unstyled mt-4'>
-                    {records.map((rec) => (
-                        <li className='mb-3' key={rec.id}>
-                            <div className='d-flex justify-content-between align-items-center border rounded p-3 bg-white'>
-                            <div>
-    <span className='fw-bold'>{rec[fields[0].name]}</span>
-    {fields[1] && rec[fields[1].name] && (
-        <span className='text-muted'> ({rec[fields[1].name]})</span>
-    )}
-</div>
+            {/* Existing Records Display */}
+{records.length === 0 ? (
+    <div className='d-flex justify-content-center'>
+    <p>No records found.</p>
+    </div>
+) : (
+    <div className='row'>
+        {records.map((rec) => (
+            <div className='col-md-6 mb-3' key={rec.id}>
+                <div className='d-flex justify-content-between align-items-center border rounded p-3 bg-body-tertiary'>
+                    <div>
+                        <span className='fw-bold'>{rec[fields[0].name]}</span>
+                        {fields[1] && rec[fields[1].name] && (
+                            <span className='text-muted'> ({rec[fields[1].name]})</span>
+                        )}
+                    </div>
+                    <div className='btn-group'>
+                        <button
+                            className='btn btn-sm btn-outline-dark border-0'
+                            onClick={() => handleEditRecord(rec)}
+                        >
+                            <i className="fas fa-edit"></i>
+                        </button>
+                        <button className='btn btn-outline-danger  border-0 btn-sm' onClick={() => handleDeleteRecord(rec.id)}>
+                            <i className="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        ))}
+    </div>
+)}
 
-                                <div className='btn-group'>
-                                    <button
-                                        className='btn btn-sm btn-warning'
-                                        onClick={() => handleEditRecord(rec)}
-                                    >
-                                        <i className="fas fa-edit"></i>
-                                    </button>
-                                    <button className='btn btn-danger btn-sm' onClick={() => handleDeleteRecord(rec.id)}>
-                                        <i className="fas fa-trash"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </li>
-                    ))}
-                </ul>
-            )}
 
             {/* Edit Record Section */}
             {editRecord && (
-                <div className='mt-4'>
+                <div className='mt-4 text-center'>
                     <h5>Edit {recordType}</h5>
-                    {recordType !== "Education" && ( // Exclude for Education
+                    {(recordType !== "Education"&& recordType !== "Certificate" &&recordType !== "Skill") && ( // Exclude for Education
                         <div className='form-check mb-3'>
                             <input
                                 type="checkbox"
@@ -238,6 +243,10 @@ const ManageRecords = ({ recordType, initialRecords, apiEndpoint, fields }) => {
                     <div className='row'>
                         {fields.map((field) => (
                             <div className='col-md-6 mb-3' key={field.name}>
+                                <div className='flex mb-2'>
+                                <label className='form-label row text-capitalize mx-1'>{field.name.replace('_', ' ')}</label>
+                                </div>
+                                
                                 <input
                                     className={`form-control ${validationErrors[field.name] ? 'is-invalid' : ''}`}
                                     type={field.type || 'text'}

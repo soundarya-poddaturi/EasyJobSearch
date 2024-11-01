@@ -1,38 +1,34 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 
-const NavbarComp = ({ handleLogout, id }) => {
-    // console.log(id)
-    const id1=localStorage.getItem("employer_id")
-    // console.log(id1)
+const NavbarComp = ({ handleLogout, isSidebarOpen }) => {
+    const employerId = localStorage.getItem("employer_id");
+
     return (
-        <div className="App">
-            <nav className="navbar navbar-expand-lg navbar-dark bg-dark p-3 fs-4">
-                <div className="container-fluid">
-                    {/* Pass the companyId to the route */}
-                    <Link className="navbar-brand" to={`/job-listbycname/${id1}`}>HOME</Link>
-                    <button 
-                        className="navbar-toggler" 
-                        type="button" 
-                        data-bs-toggle="collapse" 
-                        data-bs-target="#navbarNavDropdown" 
-                        aria-controls="navbarNavDropdown" 
-                        aria-expanded="false" 
-                        aria-label="Toggle navigation">
-                        <span className="navbar-toggler-icon"></span>
-                    </button>
-                    <div className="collapse navbar-collapse" id="navbarNavDropdown">
-                        <ul className="navbar-nav">
-                            <li className="nav-item">
-                                <Link className="nav-link" to="/create-job">Create Job</Link>
-                            </li>
-                            <li className="nav-item">
-                                <button className="nav-link btn" onClick={handleLogout}>Logout</button>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </nav>
+        <div className={`sidebar p-0 m-0 ${isSidebarOpen ? 'collapsed' : ''}`}>
+            <div className="sidebar-content">
+                <NavLink
+                    className="nav-link border-top fs-4 d-flex justify-content-center"
+                    to={`/job-listbycname/${employerId}`}
+                    activeClassName="active"
+                >
+                    {isSidebarOpen ? <i className="fas fa-home p-4"></i> : "Home"}
+                </NavLink>
+
+                <NavLink
+                    className="nav-link fs-4 d-flex justify-content-center"
+                    to="/create-job"
+                    activeClassName="active"
+                >
+                    {isSidebarOpen ? <i className="fas fa-plus p-4"></i> : "Create Job"}
+                </NavLink>
+            </div>
+            <button
+                className="nav-link btn p-3 bg-dark text-white rounded-0 fs-4 w-100"
+                onClick={handleLogout}
+            >
+                {isSidebarOpen ? <i className="fas fa-sign-out-alt p-3"></i> : "Logout"}
+            </button>
         </div>
     );
 };

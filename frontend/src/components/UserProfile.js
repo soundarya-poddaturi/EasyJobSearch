@@ -19,7 +19,7 @@ const UserProfile = ({ id }) => {
             try {
                 const response = await fetch(`http://localhost:8000/api/profile/${id}/`);
                 const data = await response.json();
-                console.log(data);
+               
                 setUserData({
                     personal_info: data.personal_info,
                     certificates: data.certificates,
@@ -56,7 +56,7 @@ const educationFields = [
     { name: 'specialization', type: 'text', placeholder: 'Specialization', required: true },
     { name: 'duration_from', type: 'date', placeholder: 'Start Date', required: false },
     { name: 'duration_to', type: 'date', placeholder: 'End Date', required: false },
-    { name: 'current', type: 'checkbox', placeholder: 'Currently Enrolled', required: false },
+    // { name: 'current', type: 'checkbox', placeholder: 'Currently Enrolled', required: false },
     { name: 'marks_or_grade', type: 'text', placeholder: 'Marks/Grade', required: false }
 ];
 
@@ -67,7 +67,7 @@ const experienceFields = [
     { name: 'role_title', type: 'text', placeholder: 'Role Title', required: true },
     { name: 'duration_from', type: 'date', placeholder: 'Start Date', required: false },
     { name: 'duration_to', type: 'date', placeholder: 'End Date', required: false },
-    { name: 'current', type: 'checkbox', placeholder: 'Currently Employed', required: false },
+    // { name: 'current', type: 'checkbox', placeholder: 'Currently Employed', required: false },
     { name: 'description', type: 'textarea', placeholder: 'Description', required: false },
     { name: 'skills', type: 'text', placeholder: 'Skills Used', required: false }
 ];
@@ -77,7 +77,7 @@ const projectFields = [
     { name: 'title', type: 'text', placeholder: 'Project Title', required: true },
     { name: 'duration_from', type: 'date', placeholder: 'Start Date', required: false },
     { name: 'duration_to', type: 'date', placeholder: 'End Date', required: false },
-    { name: 'current', type: 'checkbox', placeholder: 'Ongoing Project', required: false },
+    // { name: 'current', type: 'checkbox', placeholder: 'Ongoing Project', required: false },
     { name: 'description', type: 'textarea', placeholder: 'Description', required: false },
     { name: 'skills', type: 'text', placeholder: 'Skills Used', required: false },
     { name: 'link', type: 'url', placeholder: 'Project Link', required: false }
@@ -90,10 +90,11 @@ const skillFields = [
 
 
     return (
-        <div>
-            <h1 className='text-muted'>Hello {userData.personal_info.first_name}!</h1>
+        <div className='d-flex justify-content-center flex-row'>
+            <div>
+            <p className='text-muted text-center fs-1 fst-italic'>Hello {userData.personal_info.first_name}!</p>
             <Address id={id} personalInfo={userData.personal_info} />
-            <form onSubmit={handleSubmit} className='d-grid col-12'>
+            <form onSubmit={handleSubmit} className='d-grid col-12 '>
 
                 <ManageResume userId={id} />
 
@@ -138,6 +139,7 @@ const skillFields = [
                     fields={skillFields}
                 />
             </form>
+            </div>
         </div>
     );
 };
