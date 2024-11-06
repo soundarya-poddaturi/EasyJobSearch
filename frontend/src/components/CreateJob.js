@@ -61,7 +61,7 @@ const CreateJob = ({ id }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post('${process.env.REACT_APP_API_URL}\/create_job/', {
+            const response = await axios.post(`${process.env.REACT_APP_COMPANY_URL}/create_job/`, {
                 job_name: jobName,
                 job_role: jobRole,
                 company_id: companyId,
@@ -74,7 +74,8 @@ const CreateJob = ({ id }) => {
                 required_skills: [
                     ...mandatorySkills.map((skill) => ({ skill_name: skill, mandatory_flag: true })),
                     ...preferredSkills.map((skill) => ({ skill_name: skill, mandatory_flag: false }))
-                ]
+                ],
+                
             });
             setMessage('Job created successfully!');
             setJobName('');
@@ -87,6 +88,7 @@ const CreateJob = ({ id }) => {
             setQuestions([{ question_text: '' }]);
             setMandatorySkills([]);
             setPreferredSkills([]);
+            alert("Successfully created")
         } catch (error) {
             setMessage('Failed to create job. Please try again.');
         }
@@ -280,7 +282,7 @@ const CreateJob = ({ id }) => {
                     <button type="submit" className="btn btn-dark w-100 rounded-0 mb-5">Create Job</button>
                 </div>
             </form>
-            {message && <p className="mt-4 alert alert-info">{message}</p>}
+            {message && <p className="mt-4 mb-3 alert alert-info">{message}</p>}
         </div>
     );
 };

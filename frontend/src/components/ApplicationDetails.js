@@ -170,7 +170,7 @@ const ApplicationDetails = () => {
                                         <p className='text-center'>
 
                                             <a href={`${process.env.REACT_APP_BACKEND}${application.resume.file}`} target="_blank" rel="noopener noreferrer">
-                                                View Resume soundy
+                                                View Resume 
                                             </a>
 
                                         </p>

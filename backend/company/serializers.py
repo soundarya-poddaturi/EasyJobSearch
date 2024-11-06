@@ -121,7 +121,7 @@ class JobSerializer(serializers.ModelSerializer):
         model = Job
         fields = [
             'job_name', 'job_role', 'job_description', 'last_date', 'experience', 'type', 'salary',
-            'company_id', 'company', 'company_details', 'questions', 'required_skills'
+            'company_id', 'company', 'company_details', 'questions', 'required_skills',
         ]
 
     def get_company_details(self, obj):

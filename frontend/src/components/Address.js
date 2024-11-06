@@ -145,7 +145,7 @@ const Address = ({ personalInfo, id }) => {
         // Check for pincode errors before saving
         if (!errors.pincode) {
             try {
-                await axios.post(`${process.env.REACT_APP_COMPANY_URL}/address/manage/${id}/`, address);
+                await axios.post(`${process.env.REACT_APP_API_URL}/address/manage/${id}/`, address);
                
                 setIsEditingAddress(false);
             } catch (error) {
@@ -179,7 +179,7 @@ const Address = ({ personalInfo, id }) => {
         // Check for any errors before sending request
         if (!Object.values(combinedErrors).some((error) => error)) {
             try {
-                await axios.put(`${process.env.REACT_APP_COMPANY_URL}/profile/${id}/`, personalDetails);
+                await axios.put(`${process.env.REACT_APP_API_URL}/profile/${id}/`, personalDetails);
                
                 setIsEditingPersonal(false);
             } catch (error) {
