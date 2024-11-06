@@ -15,7 +15,7 @@
 //     const navigate=useNavigate();
 //     const handleSearch = async () => {
 //         try {
-//             const response = await axios.get(`http://localhost:8000/company/${id}/jobs/`);
+//             const response = await axios.get(`${process.env.REACT_APP_API_URL}\/${id}/jobs/`);
 //             setJobs(response.data);
 //             console.log(response.data)
 //             setError(null); // Clear any previous errors
@@ -104,7 +104,7 @@ const Joblist_bycname = ({ isSidebarOpen }) => {
 
     const handleSearch = async () => {
         try {
-            const response = await axios.get(`http://localhost:8000/company/${id}/jobs/`);
+            const response = await axios.get(`${process.env.REACT_APP_COMPANY_URL}\/${id}/jobs/`);
             setJobs(response.data);
            
             setError(null); // Clear any previous errors

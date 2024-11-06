@@ -31,7 +31,7 @@ const Projects = ({ projects: initialProjects, email }) => {
 
     const handleAddProject = async () => {
         try {
-            const response = await axios.post(`http://localhost:8000/api/project/manage/${email}/`, newProject);
+            const response = await axios.post(`${process.env.REACT_APP_COMPANY_URL}/project/manage/${email}/`, newProject);
             setProjects([...projects, { ...newProject, id: response.data.id }]);
             setNewProject({
                 title: '',
@@ -56,7 +56,7 @@ const Projects = ({ projects: initialProjects, email }) => {
 
     const handleUpdateProject = async () => {
         try {
-            await axios.put(`http://localhost:8000/api/project/manage/${email}/`, {
+            await axios.put(`${process.env.REACT_APP_COMPANY_URL}/project/manage/${email}/`, {
                 ...editProject,
                 id: editProject.id
             });
@@ -72,7 +72,7 @@ const Projects = ({ projects: initialProjects, email }) => {
 
     const handleDeleteProject = async (id) => {
         try {
-            await axios.delete(`http://localhost:8000/api/project/manage/${email}/`, { data: { id } });
+            await axios.delete(`${process.env.REACT_APP_COMPANY_URL}/project/manage/${email}/`, { data: { id } });
             setProjects(projects.filter(proj => proj.id !== id));
         } catch (error) {
             console.error('Error deleting project:', error);

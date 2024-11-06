@@ -17,7 +17,7 @@ const UserProfile = ({ id }) => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await fetch(`http://localhost:8000/api/profile/${id}/`);
+                const response = await fetch(`${process.env.REACT_APP_API_URL}/profile/${id}/`);
                 const data = await response.json();
                
                 setUserData({
@@ -102,7 +102,7 @@ const skillFields = [
                     recordType="Certificate"
                     initialRecords={userData.certificates}
                     id={id}
-                    apiEndpoint={`http://localhost:8000/api/certificate/manage/${id}`}
+                    apiEndpoint={`${process.env.REACT_APP_API_URL}/certificate/manage/${id}`}
                     fields={certificateFields}
                 />
 
@@ -110,7 +110,7 @@ const skillFields = [
                     recordType="Education"
                     initialRecords={userData.education}
                     id={id}
-                    apiEndpoint={`http://localhost:8000/api/education/manage/${id}`}
+                    apiEndpoint={`${process.env.REACT_APP_API_URL}/education/manage/${id}`}
                     fields={educationFields}
                 />
                
@@ -119,7 +119,7 @@ const skillFields = [
                     recordType="Experience"
                     initialRecords={userData.experiences}
                     id={id}
-                    apiEndpoint={`http://localhost:8000/api/experience/manage/${id}`}
+                    apiEndpoint={`${process.env.REACT_APP_API_URL}/experience/manage/${id}`}
                     fields={experienceFields}
                 />
 
@@ -127,7 +127,7 @@ const skillFields = [
                     recordType="Project"
                     initialRecords={userData.projects}
                     id={id}
-                    apiEndpoint={`http://localhost:8000/api/project/manage/${id}`}
+                    apiEndpoint={`${process.env.REACT_APP_API_URL}/project/manage/${id}`}
                     fields={projectFields}
                 />
 
@@ -135,7 +135,7 @@ const skillFields = [
                     recordType="Skill"
                     initialRecords={userData.skills}
                     id={id}
-                    apiEndpoint={`http://localhost:8000/api/skills/manage/${id}`} 
+                    apiEndpoint={`${process.env.REACT_APP_API_URL}/skills/manage/${id}`} 
                     fields={skillFields}
                 />
             </form>

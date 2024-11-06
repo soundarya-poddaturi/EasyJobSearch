@@ -16,7 +16,7 @@ const ManageResume = ({ userId }) => {
         setLoading(true);
         setError(null);
         try {
-            const response = await axios.get(`http://localhost:8000/api/resume/${userId}/`);
+            const response = await axios.get(`${process.env.REACT_APP_API_URL}/resume/${userId}/`);
             setResume(response.data);
         } catch (err) {
             setError(err.response?.data?.error || 'Failed to load resume');
@@ -38,10 +38,10 @@ const ManageResume = ({ userId }) => {
         try {
             setLoading(true);
             const response = resume
-                ? await axios.put(`http://localhost:8000/api/resume/${userId}/`, formData)
-                : await axios.post(`http://localhost:8000/api/resume/${userId}/`, formData);
+                ? await axios.put(`${process.env.REACT_APP_API_URL}/resume/${userId}/`, formData)
+                : await axios.post(`${process.env.REACT_APP_API_URL}/resume/${userId}/`, formData);
 
-           
+            console.log(response.data)
             setResume(response.data);
             setSelectedFile(null);
             alert('Resume uploaded successfully');
@@ -58,7 +58,7 @@ const ManageResume = ({ userId }) => {
         
         try {
             setLoading(true);
-            await axios.delete(`http://localhost:8000/api/resume/${userId}/`);
+            await axios.delete(`${process.env.REACT_APP_API_URL}/resume/${userId}/`);
             setResume(null);
             alert('Resume deleted successfully');
         } catch (err) {

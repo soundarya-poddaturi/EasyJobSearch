@@ -38,8 +38,8 @@ const Register = () => {
         }
 
         const url = isEmployer 
-            ? 'http://localhost:8000/company/register_company/' 
-            : 'http://localhost:8000/api/register/';
+            ? '${process.env.REACT_APP_API_URL}/register_company/' 
+            : '${process.env.REACT_APP_COMPANY_URL}/register/';
 
         try {
             const response = await axios.post(url, dataToSend);
