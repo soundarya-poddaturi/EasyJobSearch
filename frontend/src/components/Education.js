@@ -31,7 +31,7 @@ const Education = ({ education: initialEducation, email }) => {
 
     const handleAddEducation = async () => {
         try {
-            const response = await axios.post(`http://localhost:8000/api/education/manage/${email}/`, newEducation);
+            const response = await axios.post(`${process.env.REACT_APP_COMPANY_URL}/education/manage/${email}/`, newEducation);
             setEducation([...education, { ...newEducation, id: response.data.id }]);
             setNewEducation({
                 institute_name: '',
@@ -49,7 +49,7 @@ const Education = ({ education: initialEducation, email }) => {
 
     const handleUpdateEducation = async () => {
         try {
-            await axios.put(`http://localhost:8000/api/education/manage/${email}/`, {
+            await axios.put(`${process.env.REACT_APP_COMPANY_URL}/education/manage/${email}/`, {
                 ...editEducation,
                 id: editEducation.id
             });
@@ -65,7 +65,7 @@ const Education = ({ education: initialEducation, email }) => {
 
     const handleDeleteEducation = async (id) => {
         try {
-            await axios.delete(`http://localhost:8000/api/education/manage/${email}/`, { data: { id } });
+            await axios.delete(`${process.env.REACT_APP_COMPANY_URL}/education/manage/${email}/`, { data: { id } });
             setEducation(education.filter((edu) => edu.id !== id));
         } catch (error) {
             console.error('Error deleting education:', error);

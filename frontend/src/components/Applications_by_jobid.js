@@ -11,7 +11,7 @@ const Applications_by_jobid = ({ jobId }) => {
     useEffect(() => {
         const fetchApplications = async () => {
             try {
-                const response = await axios.get(`http://localhost:8000/company/jobs/${jobId}/applications/`);
+                const response = await axios.get(`${process.env.REACT_APP_API_URL}\/jobs/${jobId}/applications/`);
                
                 setApplications(response.data);
             } catch (error) {

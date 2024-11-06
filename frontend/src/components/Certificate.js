@@ -22,7 +22,7 @@ const Certificates = ({ certificates: initialCertificates, email }) => {
 
     const handleAddCertificate = async () => {
         try {
-            const response = await axios.post(`http://localhost:8000/api/certificate/manage/${email}/`, newCertificate);
+            const response = await axios.post(`${process.env.REACT_APP_COMPANY_URL}/certificate/manage/${email}/`, newCertificate);
             setCertificates([...certificates, { ...newCertificate, id: response.data.id }]);
             setNewCertificate({ title: '', description: '', file_link: '' });
             setShowNewCertificateForm(false);
@@ -38,7 +38,7 @@ const Certificates = ({ certificates: initialCertificates, email }) => {
 
     const handleUpdateCertificate = async () => {
         try {
-            await axios.put(`http://localhost:8000/api/certificate/manage/${email}/`, {
+            await axios.put(`${process.env.REACT_APP_COMPANY_URL}/certificate/manage/${email}/`, {
                 ...editCertificate,
                 id: editCertificate.id
             });
@@ -54,7 +54,7 @@ const Certificates = ({ certificates: initialCertificates, email }) => {
 
     const handleDeleteCertificate = async (id) => {
         try {
-            await axios.delete(`http://localhost:8000/api/certificate/manage/${email}/`, { data: { id } });
+            await axios.delete(`${process.env.REACT_APP_COMPANY_URL}/certificate/manage/${email}/`, { data: { id } });
             setCertificates(certificates.filter(cert => cert.id !== id));
         } catch (error) {
             console.error('Error deleting certificate:', error);

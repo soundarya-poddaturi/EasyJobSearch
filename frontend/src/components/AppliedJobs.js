@@ -11,13 +11,13 @@ const AppliedJobs = ({isSidebarOpen}) => {
     useEffect(() => {
         const fetchApplications = async () => {
             try {
-                const response = await axios.get(`http://localhost:8000/company/applications/student/${userId}/`);
+                const response = await axios.get(`${process.env.REACT_APP_COMPANY_URL}/applications/student/${userId}/`);
                 const applicationIds = response.data.application_ids;
 
                 const applicationDetails = await Promise.all(
                     applicationIds.map(async (appId) => {
-                        const appResponse = await axios.get(`http://localhost:8000/company/applications/${appId}/`);
-                        const jobResponse = await axios.get(`http://localhost:8000/company/jobs/${appResponse.data.job_id}/`);
+                        const appResponse = await axios.get(`${process.env.REACT_APP_COMPANY_URL}/applications/${appId}/`);
+                        const jobResponse = await axios.get(`${process.env.REACT_APP_COMPANY_URL}/jobs/${appResponse.data.job_id}/`);
                         
                         // Format the job data to match the JobCard structure
                         const formattedJob = {

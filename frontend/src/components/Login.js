@@ -13,9 +13,10 @@ const Login = ({ onLogin }) => {
         e.preventDefault();
 
         const url = role === 'student'
-            ? 'http://localhost:8000/api/login/'
-            : 'http://localhost:8000/company/login_company/';
-
+            ? `${process.env.REACT_APP_API_URL}/login/`
+            : `${process.env.REACT_APP_COMPANY_URL}/login_company/`;
+        console.log(url)
+        console.log("REACT_APP_COMPANY_URL:", process.env.REACT_APP_COMPANY_URL);
         axios.post(url, { email, password })
             .then(response => {
               

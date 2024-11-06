@@ -11,10 +11,10 @@
 //     useEffect(() => {
 //         const fetchApplication = async () => {
 //             try {
-//                 const response = await axios.get(`http://localhost:8000/company/applications/${appId}/`);
+//                 const response = await axios.get(`${process.env.REACT_APP_COMPANY_URL}\/applications/${appId}/`);
 //                 const applicationData = response.data;
 
-//                 const response2 = await axios.get(`http://localhost:8000/api/profile/${applicationData.student_id}/`);
+//                 const response2 = await axios.get(`${process.env.REACT_APP_COMPANY_URL}/profile/${applicationData.student_id}/`);
 //                 const profileData = response2.data;
 
 //                 setApplication(applicationData);
@@ -30,7 +30,7 @@
 
 //     const handleStatus = async (status) => {
 //         try {
-//             const response = await axios.patch(`http://localhost:8000/company/applications/${appId}/update_status/`, { status });
+//             const response = await axios.patch(`${process.env.REACT_APP_COMPANY_URL}\/applications/${appId}/update_status/`, { status });
 //             console.log('Status update response:', response.data);
 //             setApplication((prev) => ({ ...prev, status })); // Update local application status
 //         } catch (err) {
@@ -177,9 +177,9 @@ const ResumeCard = ({ resume }) => {
                 <h4>Resume</h4>
                 {resume ? (
                     <p>
-                        <a href={`http://localhost:8000${resume.file}`} target="_blank" rel="noopener noreferrer">
-                        View Resume
-                    </a>
+                        <a href={`${process.env.REACT_APP_BACKEND}${resume.data.file}`} target="_blank" rel="noopener noreferrer">
+                            View Resume
+                        </a>
                     </p>
                 ) : (
                     <p>No resume available.</p>
@@ -233,14 +233,14 @@ const DetailCard = ({ title, data }) => {
 const PersonalInfoCard = ({ personalInfo }) => {
     // Extract the address from personalInfo
     const { address, ...restOfPersonalInfo } = personalInfo;
-   
+
 
     // Combine rest of personalInfo with address key-value pairs
     const updatedPersonalInfo = {
         ...restOfPersonalInfo,
         ...address[0] // Spread the address properties into the updatedPersonalInfo
     };
-   
+
 
     return (
         <DetailCard
@@ -260,14 +260,14 @@ export default function SingleApplicationDetails() {
     useEffect(() => {
         const fetchApplication = async () => {
             try {
-                const response = await axios.get(`http://localhost:8000/company/applications/${appId}/`);
+                const response = await axios.get(`${process.env.REACT_APP_COMPANY_URL}/applications/${appId}/`);
                 const applicationData = response.data;
-               
-                const response2 = await axios.get(`http://localhost:8000/api/profile/${applicationData.student_id}/`);
+
+                const response2 = await axios.get(`${process.env.REACT_APP_API_URL}/profile/${applicationData.student_id}/`);
                 const profileData = response2.data;
-                const responseResume = await axios.get(`http://localhost:8000/api/resume/${applicationData.student_id}/`);
+                const responseResume = await axios.get(`${process.env.REACT_APP_API_URL}/resume/${applicationData.student_id}/`);
                 setResume(responseResume);
-              
+
                 setApplication(applicationData);
                 setProfile(profileData);
             } catch (err) {
@@ -280,7 +280,7 @@ export default function SingleApplicationDetails() {
 
     const handleStatus = async (status) => {
         try {
-            await axios.patch(`http://localhost:8000/company/applications/${appId}/update_status/`, { status });
+            await axios.patch(`${process.env.REACT_APP_COMPANY_URL}/applications/${appId}/update_status/`, { status });
             setApplication((prev) => ({ ...prev, status }));
         } catch (err) {
             setError('Error updating application status.');
@@ -334,7 +334,7 @@ export default function SingleApplicationDetails() {
             <div>
                 {resume && (
                     <div>
-                       
+
                         <ResumeCard resume={resume} />
                     </div>
                 )}

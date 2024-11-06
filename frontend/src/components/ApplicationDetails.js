@@ -15,17 +15,17 @@ const ApplicationDetails = () => {
     useEffect(() => {
         const fetchApplicationDetails = async () => {
             try {
-                const response = await axios.get(`http://localhost:8000/company/jobs/${jobId}/applications/`);
+                const response = await axios.get(`${process.env.REACT_APP_COMPANY_URL}/jobs/${jobId}/applications/`);
                 const applicationsData = await Promise.all(
                     response.data.map(async (application) => {
-                        const studentProfile = await axios.get(`http://localhost:8000/api/profile/${application.student_id}/`);
-                        const responseResume = await axios.get(`http://localhost:8000/api/resume/${application.student_id}/`);
-                        
+                        const studentProfile = await axios.get(`${process.env.REACT_APP_API_URL}/profile/${application.student_id}/`);
+                        const responseResume = await axios.get(`${process.env.REACT_APP_API_URL}/resume/${application.student_id}/`);
+
                         return { ...application, studentProfile: studentProfile.data, resume: responseResume.data };
                         // return { ...application, studentProfile: studentProfile.data };
                     })
                 );
-               
+
                 setApplications(applicationsData);
             } catch (err) {
                 setError("Error fetching application details.");
@@ -43,7 +43,7 @@ const ApplicationDetails = () => {
 
     const handleStatus = async (application_id, status) => {
         try {
-            await axios.patch(`http://localhost:8000/company/applications/${application_id}/update_status/`, { status });
+            await axios.patch(`${process.env.REACT_APP_API_URL}/applications/${application_id}/update_status/`, { status });
             setApplications((prevApplications) =>
                 prevApplications.map((application) =>
                     application.id === application_id ? { ...application, status } : application
@@ -118,7 +118,7 @@ const ApplicationDetails = () => {
 
             {sortedApplications.map((application) => {
                 const { personal_info, certificates, projects, experiences, skills } = application.studentProfile;
-              
+
                 // Extract metadata
                 const studentName = `${personal_info.first_name} ${personal_info.middle_name || ''} ${personal_info.last_name}`.trim();
                 const email = personal_info.email;
@@ -126,7 +126,9 @@ const ApplicationDetails = () => {
                 const numCertificates = certificates.length;
                 const numProjects = projects.length;
                 const numExperience = experiences.length;
-
+                console.log(application.resume)
+                console.log("REACT_APP_API_URL:", process.env.REACT_APP_BACKEND);
+                // console.log("REACT_APP_API_URL:", process.env.REACT_APP_API_URL);
                 return (
                     <div key={application.id} className="mb-3 border-0 p-3 bg-white shadow">
                         <div className="row">
@@ -166,9 +168,11 @@ const ApplicationDetails = () => {
                                 <div className="d-flex flex-column justify-content-between mb-3">
                                     {application.resume ? (
                                         <p className='text-center'>
-                                            <a href={`http://localhost:8000${resume.file}`} target="_blank" rel="noopener noreferrer">
-                                                View Resume
+
+                                            <a href={`${process.env.REACT_APP_BACKEND}${application.resume.file}`} target="_blank" rel="noopener noreferrer">
+                                                View Resume soundy
                                             </a>
+
                                         </p>
 
                                     ) : (

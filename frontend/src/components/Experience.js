@@ -36,7 +36,7 @@ const Experience = ({ email, experiences: initialExperiences }) => {
 
     const handleAddExperience = async () => {
         try {
-            const response = await axios.post(`http://localhost:8000/api/experience/manage/${email}/`, newExperience);
+            const response = await axios.post(`${process.env.REACT_APP_COMPANY_URL}/experience/manage/${email}/`, newExperience);
             setExperiences([...experiences, { ...newExperience, id: response.data.id }]);
             setNewExperience({
                 employer: '',
@@ -57,7 +57,7 @@ const Experience = ({ email, experiences: initialExperiences }) => {
 
     const handleUpdateExperience = async () => {
         try {
-            await axios.put(`http://localhost:8000/api/experience/manage/${email}/`, {
+            await axios.put(`${process.env.REACT_APP_COMPANY_URL}/experience/manage/${email}/`, {
                 ...editExperience,
                 id: editExperience.id
             });
@@ -73,7 +73,7 @@ const Experience = ({ email, experiences: initialExperiences }) => {
 
     const handleDeleteExperience = async (id) => {
         try {
-            await axios.delete(`http://localhost:8000/api/experience/manage/${email}/`, { data: { id } });
+            await axios.delete(`${process.env.REACT_APP_COMPANY_URL}/experience/manage/${email}/`, { data: { id } });
             setExperiences(experiences.filter((exp) => exp.id !== id));
         } catch (error) {
             console.error('Error deleting experience:', error);

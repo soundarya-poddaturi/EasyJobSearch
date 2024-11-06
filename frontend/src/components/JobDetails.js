@@ -22,13 +22,13 @@ const JobDetails = () => {
             try {
                 if (studentId) {
                     // Get application IDs for the student
-                    const applicationIdsResponse = await axios.get(`http://localhost:8000/company/applications/student/${studentId}/`);
+                    const applicationIdsResponse = await axios.get(`${process.env.REACT_APP_COMPANY_URL}\/applications/student/${studentId}/`);
                     const applicationIds = applicationIdsResponse.data.application_ids;
     
                     // Fetch job IDs for each application
                     const appliedJobIds = await Promise.all(
                         applicationIds.map(async (appId) => {
-                            const appResponse = await axios.get(`http://localhost:8000/company/applications/${appId}/`);
+                            const appResponse = await axios.get(`${process.env.REACT_APP_COMPANY_URL}\/applications/${appId}/`);
                             return appResponse.data.job_id; // Extract job_id directly
                         })
                     );
@@ -36,7 +36,7 @@ const JobDetails = () => {
                     console.log(appliedJobIds);
                     setAppliedJobs(appliedJobIds);
                 }
-                // const appliedResponse = await axios.get(`http://localhost:8000/company/applications/student/${studentId}/`);
+                // const appliedResponse = await axios.get(`${process.env.REACT_APP_COMPANY_URL}\/applications/student/${studentId}/`);
                 // console.log("Applied Jobs IDs:", appliedResponse.data.application_ids);
                 // setAppliedJobs(appliedResponse.data.application_ids); // Store job IDs directly
             } catch (err) {
@@ -50,7 +50,7 @@ const JobDetails = () => {
     useEffect(() => {
         const fetchJob = async () => {
             try {
-                const jobDetails = await axios.get(`http://localhost:8000/company/jobs/${jobId}/`);
+                const jobDetails = await axios.get(`${process.env.REACT_APP_COMPANY_URL}\/jobs/${jobId}/`);
                
                 setJob(jobDetails.data);
             } catch (err) {
@@ -79,7 +79,7 @@ const JobDetails = () => {
                 formData.append('file', resumeFile);  // Append file to FormData
             }
            
-            const response = await axios.post(`http://localhost:8000/api/resume/match/${jobId}/`, formData, {
+            const response = await axios.post(`${process.env.REACT_APP_COMPANY_URL}/resume/match/${jobId}/`, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
 
@@ -111,7 +111,7 @@ const JobDetails = () => {
 
         try {
           
-            await axios.post(`http://localhost:8000/company/create_application/`, {
+            await axios.post(`${process.env.REACT_APP_COMPANY_URL}\/create_application/`, {
                 student_id: studentId,
                 job_id: jobId,
                 answers: formattedAnswers,

@@ -23,7 +23,7 @@ const JobList = ({ isSidebarOpen }) => {
     useEffect(() => {
         const fetchJobs = async () => {
             try {
-                const jobResponse = await axios.get(`http://localhost:8000/company/jobs/`);
+                const jobResponse = await axios.get(`${process.env.REACT_APP_COMPANY_URL}/jobs/`);
                 const jobData = jobResponse.data;
                 setJobs(jobData);
                 setFilteredJobs(jobData); // Initialize with all jobs
@@ -36,12 +36,12 @@ const JobList = ({ isSidebarOpen }) => {
                 setCompanyOptions(companies);
 
                 if (studentId) {
-                    const applicationIdsResponse = await axios.get(`http://localhost:8000/company/applications/student/${studentId}/`);
+                    const applicationIdsResponse = await axios.get(`${process.env.REACT_APP_COMPANY_URL}/applications/student/${studentId}/`);
                     const applicationIds = applicationIdsResponse.data.application_ids;
 
                     const appliedJobIds = await Promise.all(
                         applicationIds.map(async (appId) => {
-                            const appResponse = await axios.get(`http://localhost:8000/company/applications/${appId}/`);
+                            const appResponse = await axios.get(`${process.env.REACT_APP_COMPANY_URL}/applications/${appId}/`);
                             return appResponse.data.job_id;
                         })
                     );

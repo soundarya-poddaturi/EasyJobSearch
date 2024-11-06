@@ -37,11 +37,11 @@ SECRET_KEY = 'django-insecure-o7&kbvw%&gaz7bv3r2k_)8r(i45()7*60nl^31)6b3n2d42+&-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['easyjobsearch-aty0.onrender.com']
+ALLOWED_HOSTS = ['easyjobsearch-aty0.onrender.com','localhost']
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',  # or wherever your React app is running
     'https://easy-job-search.vercel.app',
-    'https://easyjobsearch-aty0.onrender.com/',
+    'https://easyjobsearch-aty0.onrender.com',
 ]
 CORS_ALLOW_ALL_ORIGINS = True
 REST_FRAMEWORK = {
