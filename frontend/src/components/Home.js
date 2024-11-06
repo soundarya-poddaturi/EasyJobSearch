@@ -20,7 +20,7 @@ export const Home = ({ setUseId, setUserRole }) => {
     return (
         <div className="container position-relative">
             {!isLoggedIn && (
-                <div className="d-grid " style={{ height: '750px' }}>
+                <div className="d-grid " style={{ height:"100%" }}>
 
 
                     {/* Opaque Layer with Transition */}
@@ -32,6 +32,7 @@ export const Home = ({ setUseId, setUserRole }) => {
                             backgroundSize: 'cover', // Optionally add this for better display
                             backgroundPosition: 'center' // Optionally add this for better positioning
                         }}
+                        onClick={() => setIsRegistering(!isRegistering)}
                     >
 
 
@@ -44,13 +45,15 @@ export const Home = ({ setUseId, setUserRole }) => {
                         >
                             {isRegistering ? (
                                 <>
-                                    <i className="ms-3 fas fa-arrow-left"></i> {/* Arrow points left */}
+                                   
                                     Go to Register
+                                    <i className="ms-3 fas fa-arrow-right"></i> {/* Arrow points left */}
                                 </>
                             ) : (
                                 <>
+                                <i className="ms-3 fas fa-arrow-left"></i>
                                     Go to Login
-                                    <i className="ms-3 fas fa-arrow-right"></i> {/* Arrow points right */}
+                                     {/* Arrow points right */}
                                 </>
                             )}
                         </button>

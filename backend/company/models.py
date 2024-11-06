@@ -23,7 +23,6 @@ class Job(models.Model):
     experience=models.FloatField()
     type=models.CharField(max_length=100)
     last_date = models.DateField()
-
     def _str_(self):
         return self.job_name
 class RequiredSkills(models.Model):

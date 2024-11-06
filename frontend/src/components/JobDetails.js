@@ -51,7 +51,7 @@ const JobDetails = () => {
         const fetchJob = async () => {
             try {
                 const jobDetails = await axios.get(`${process.env.REACT_APP_COMPANY_URL}\/jobs/${jobId}/`);
-               
+               console.log(jobDetails.data)
                 setJob(jobDetails.data);
             } catch (err) {
                 setError('Error fetching job details');
@@ -79,7 +79,7 @@ const JobDetails = () => {
                 formData.append('file', resumeFile);  // Append file to FormData
             }
            
-            const response = await axios.post(`${process.env.REACT_APP_COMPANY_URL}/resume/match/${jobId}/`, formData, {
+            const response = await axios.post(`${process.env.REACT_APP_API_URL}/resume/match/${jobId}/`, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
 
@@ -223,12 +223,12 @@ const JobDetails = () => {
                             onClick={() => handleApply(currentJobId)}
                             className="btn btn-dark mb-3 w-50"
                         >
-                            {selectedJobId === currentJobId ? 'Cancel' : 'Apply'}
+                            APPLY
                         </button>
                     )}
 
                     {/* Show questions and input fields */}
-                    {selectedJobId === currentJobId && isLoggedIn && job.questions && !isApplied && (
+                    {selectedJobId === currentJobId && isLoggedIn && job.questions.length>0 && !isApplied && (
                         <div>
 
                             <h5>Answer the following questions:</h5>

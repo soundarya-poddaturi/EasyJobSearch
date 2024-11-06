@@ -38,9 +38,9 @@ const Register = () => {
         }
 
         const url = isEmployer 
-            ? '${process.env.REACT_APP_API_URL}/register_company/' 
-            : '${process.env.REACT_APP_COMPANY_URL}/register/';
-
+            ? `${process.env.REACT_APP_COMPANY_URL}/register_company/`
+            : `${process.env.REACT_APP_API_URL}/register/`;
+        console.log(url)
         try {
             const response = await axios.post(url, dataToSend);
             toast.success('Registration successful!');
@@ -52,7 +52,7 @@ const Register = () => {
             }
 
             // Navigate to login page after registration
-            navigate('/login');
+            // navigate('/login');
 
         } catch (error) {
             toast.error('Registration failed. ' + (error.response?.data?.error || 'Please try again.'));
