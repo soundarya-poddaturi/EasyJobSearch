@@ -40,10 +40,11 @@ const JobCard = ({ job, isApplied, onApplyClick, isSidebarOpen ,status}) => {
                 ) : (
                     <div className="d-flex justify-content-center">
                         <button
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                onApplyClick && onApplyClick();
-                            }}
+                            // onClick={(e) => {
+                            //     e.stopPropagation();
+                            //     onApplyClick && onApplyClick();
+                            // }}
+                            onClick={() => navigate(`/job-details/${job.id}`)}
                             className="btn btn-dark rounded-0 w-100"
                         >
                             Apply
