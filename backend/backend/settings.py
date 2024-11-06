@@ -40,6 +40,8 @@ DEBUG = True
 ALLOWED_HOSTS = ['easyjobsearch-aty0.onrender.com']
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',  # or wherever your React app is running
+    'https://easy-job-search.vercel.app',
+    'https://easyjobsearch-aty0.onrender.com/',
 ]
 CORS_ALLOW_ALL_ORIGINS = True
 REST_FRAMEWORK = {
