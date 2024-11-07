@@ -29,8 +29,8 @@ const NavbarStud = ({ userEmail, handleLogout, isSidebarOpen }) => {
                     {isSidebarOpen ? <i className="fas fa-file-alt p-4"></i> : "Applied Jobs"}
                 </NavLink>
             </div>
-            <button className="nav-link btn p-3 bg-dark text-white rounded-0 fs-4 w-100" onClick={handleLogout}>
-                {isSidebarOpen ? <i className="fas fa-sign-out-alt p-3"></i> : "Logout"}
+            <button className="nav-link btn p-3  bg-dark c-cust text-white rounded-0 fs-4 " onClick={handleLogout}>
+                {isSidebarOpen ? <i className="fas fa-sign-out-alt  c-cust p-3"></i> : "Logout"}
             </button>
         </div>
     );

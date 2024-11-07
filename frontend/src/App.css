@@ -5,9 +5,11 @@
   box-sizing: border-box;
 }
 
-html, body {
+html,
+body {
   height: 100%;
-  background-color: rgba(248, 249, 250) !important; /* Background color */
+  background-color: rgba(248, 249, 250) !important;
+  /* Background color */
 }
 
 /* Full Screen Centering */
@@ -31,16 +33,19 @@ html, body {
   position: fixed;
   height: 100%;
   overflow: auto;
-  transition: width 0.3s; /* Smooth transition for width */
+  transition: width 0.3s;
+  /* Smooth transition for width */
 }
 
 /* Sidebar default and collapsed widths */
 .sidebar-wrapper.col-2 {
   width: 15.4%;
 }
+
 .sidebar-wrapper.col-1,
 .sidebar-wrapper.collapsed {
-  width: 100px; /* Width when collapsed */
+  width: 100px;
+  /* Width when collapsed */
 }
 
 /* Sidebar Inner Content */
@@ -48,11 +53,13 @@ html, body {
   display: flex;
   flex-direction: column;
   height: 100%;
-  padding-bottom: 20px; /* Optional padding at the bottom */
+  padding-bottom: 20px;
+  /* Optional padding at the bottom */
 }
 
 .sidebar-content {
-  flex: 1; /* Allows this section to grow and take up available space */
+  flex: 1;
+  /* Allows this section to grow and take up available space */
 }
 
 .sidebar .logo {
@@ -72,7 +79,7 @@ html, body {
 }
 
 .sidebar a.active {
-  background-color:  rgba(248, 249, 250) !important;
+  background-color: rgba(248, 249, 250) !important;
   color: rgb(21, 21, 21);
 }
 
@@ -83,22 +90,27 @@ html, body {
 
 /* Sidebar collapsed styles */
 .sidebar-wrapper.collapsed .logo {
-  display: none; /* Hide logo when collapsed */
+  display: none;
+  /* Hide logo when collapsed */
 }
 
 .sidebar-wrapper.collapsed a {
   text-align: center;
-  padding: 8px; /* Reduce padding for collapsed view */
-  font-size: 14px; /* Adjust font size in collapsed mode */
+  padding: 8px;
+  /* Reduce padding for collapsed view */
+  font-size: 14px;
+  /* Adjust font size in collapsed mode */
 }
 
 .sidebar-wrapper.collapsed a::after {
-  display: none; /* Remove hover effects in collapsed mode */
+  display: none;
+  /* Remove hover effects in collapsed mode */
 }
 
 /* Toggle Button Styles */
 .btn-toggle {
-  width: 100%; /* Full width toggle button */
+  width: 100%;
+  /* Full width toggle button */
   background: none;
   border: none;
   cursor: pointer;
@@ -108,7 +120,8 @@ html, body {
 }
 
 .sidebar-wrapper.collapsed .btn-toggle {
-  font-size: 24px; /* Increase button size if sidebar is collapsed */
+  font-size: 24px;
+  /* Increase button size if sidebar is collapsed */
 }
 
 /* Main Content Styles */
@@ -119,33 +132,67 @@ html, body {
 }
 
 .container-fluid {
-  margin-left: 280px; /* Default margin for content */
+  margin-left: 280px;
+  /* Default margin for content */
 }
 
 .main-content.col-10 {
-  margin-left: 15.4%; /* Adjust based on sidebar default width */
+  margin-left: 15.4%;
+  /* Adjust based on sidebar default width */
 }
 
 .main-content.col-11 {
-  margin-left: 105px; /* Adjust based on collapsed sidebar width */
+  margin-left: 105px;
+  /* Adjust based on collapsed sidebar width */
 }
 
 /* Responsive adjustments */
-@media screen and (max-width: 700px) {
-  .sidebar{
+@media screen and (max-width: 710px) {
+  .sidebar {
     display: flex;
     flex-direction: row;
+    width: 100%;
   }
+
+  .sidebar-wrapper.col-2 {
+    width: 100%;
+  }
+
+  .main-content.col-10 {
+    margin-left: 7.5%;
+  }
+
   .sidebar-wrapper {
     width: 100%;
     height: auto;
     position: relative;
   }
-  .sidebar-wrapper.collapsed {
-    width: 60px; /* Adjust for mobile when collapsed */
+
+  .btn-toggle {
+    display: none;
   }
+
+  /* .sidebar .nav-link{
+    width: 100%;
+  } */
+  .sidebar .button {
+    width: 50%;
+  }
+
+  .sidebar-content {
+    display: flex;
+    flex-direction: row;
+
+  }
+
+  .sidebar-wrapper.collapsed {
+    width: 60px;
+    /* Adjust for mobile when collapsed */
+  }
+
   .main-content {
-    margin-left: 0; /* Reset margin for mobile */
+    margin-left: 0;
+    /* Reset margin for mobile */
   }
 }
 
@@ -177,8 +224,10 @@ html, body {
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-height: 3em; /* Ensures it occupies two lines of space */
-  min-height: 3em; /* Ensures it always has the height of two lines */
+  max-height: 3em;
+  /* Ensures it occupies two lines of space */
+  min-height: 3em;
+  /* Ensures it always has the height of two lines */
 }
 
 .height {
@@ -187,9 +236,11 @@ html, body {
 
 /* Additional styles for the logout button */
 .logout {
-  margin-top: auto; /* Pushes the logout button to the bottom */
-  
+  margin-top: auto;
+  /* Pushes the logout button to the bottom */
+
 }
+
 .opaque-layer {
   position: absolute;
   top: 0;
@@ -197,7 +248,7 @@ html, body {
   background: rgb(255, 255, 255);
   z-index: 20;
   display: flex;
-  align-items: center; 
+  align-items: center;
   justify-content: center;
   width: 45%;
   transition: transform 0.5s ease;
@@ -208,81 +259,214 @@ html, body {
 
 
 .translate-x {
-  transform: translateX(100%); /* Shift to cover the Register side */
+  transform: translateX(100%);
+  /* Shift to cover the Register side */
 }
 
-.pg
-{
+.pg {
   max-width: 100%;
   height: auto;
 }
+
 @media (max-width: 768px) {
   .d-flex {
-      flex-direction: column;  /* For larger screens, items will be side by side */
+    flex-direction: column;
+    /* For larger screens, items will be side by side */
   }
 }
 
 /* Optional: You can adjust widths if needed on larger screens */
 @media (min-width: 768px) {
   .w-md-50 {
-      width: 50%; /* Ensure that on medium screens, elements take half the width */
+    width: 50%;
+    /* Ensure that on medium screens, elements take half the width */
   }
 }
-/* Styling for filter button and panel */
-.open-filter-btn {
-  font-size: 20px;
-  cursor: pointer;
-  background-color: #111;
-  color: white;
-  padding: 10px 15px;
-  border: none;
-  position: fixed;
-  right: 20px;
-  top: 20px;
-  z-index: 1000;
+
+body {
+  font-family: "Lato", sans-serif;
 }
 
-.filter-panel {
-  position: fixed;
-  top: 0;
-  right: -300px; /* Start off-screen */
-  width: 300px;
+.filterNav {
   height: 100%;
+  width: 0;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  right: 0;
   background-color: #111;
-  color: white;
-  padding: 20px;
-  box-shadow: -2px 0 5px rgba(0,0,0,0.5);
-  z-index: 1001;
-  transition: right 0.3s ease; /* Smooth slide-in */
-  overflow-y: auto;
+  overflow-x: hidden;
+  transition: 0.5s;
+  padding-top: 60px;
 }
 
-.filter-panel.visible {
-  right: 0; /* Slide in when visible */
+.filterNav h5 {
+  padding: 8px 8px 8px 32px;
+  text-decoration: none;
+  font-size: 25px;
+  color: #ccc;
+  display: block;
+  transition: 0.3s;
 }
 
-.close-filter-btn {
-  font-size: 24px;
-  color: white;
-  background: none;
-  border: none;
-  cursor: pointer;
+.filterNav .text {
+  color: #818181;
+  display: block;
+  transition: 0.3s;
+}
+
+.filterNav h5:hover {
+  color: #f1f1f1;
+}
+
+.filterNav .text:hover {
+  color: #f1f1f1;
+}
+
+.filterNav .closebtn {
   position: absolute;
-  top: 10px;
-  left: 10px;
+  top: 0;
+  right: 25px;
+  font-size: 36px;
+  margin-left: 50px;
+  background-color: #111;
+  border: none;
+  color: #ccc;
 }
 
-.filter-section {
-  margin-bottom: 20px;
+@media screen and (max-height: 450px) {
+  .filterNav {
+    padding-top: 15px;
+  }
+
+  .filterNav a {
+    font-size: 14px;
+  }
 }
 
-.filter-section h5 {
-  margin-bottom: 10px;
+.filterNav.open {
+  width: 250px;
 }
 
-.filter-section input[type="number"] {
-  width: 100%;
-  margin-top: 5px;
-  padding: 5px;
-  border-radius: 3px;
+/* Add these styles in your CSS file or as inline styles in the component */
+
+/* Default styles */
+.d-flex1 {
+  display: flex;
+  align-items: center;
+  /* gap: 8px; Adjust gap between checkbox and label */
+}
+
+.ms-3 {
+  margin-left: 8px;
+}
+
+
+.searchbar {
+  margin-bottom: auto;
+  margin-top: auto;
+  height: 60px;
+  /* background-color: #353b48; */
+  background-color: rgb(50, 50, 50);
+  /* background-color:rgb(255, 114, 94) !important; */
+  border-radius: 30px;
+  padding: 10px;
+}
+
+.search_input {
+  color: white;
+  border: 0;
+  outline: 0;
+  background: none;
+  width: 500px;
+  caret-color: transparent;
+  line-height: 40px;
+  transition: width 0.4s linear;
+}
+
+.searchbar:hover>.search_input {
+  padding: 0 10px;
+  width: 520px;
+  caret-color: red;
+  transition: width 0.4s linear;
+}
+
+.searchbar:hover>.search_icon {
+  background: rgb(55, 33, 33);
+  color: #e74c3c;
+}
+
+.search_icon {
+  height: 40px;
+  width: 40px;
+  float: right;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  /* color: white; */
+  color: rgba(248, 249, 250) !important;
+  text-decoration: none;
+}
+
+/* Responsive styling for screens smaller than 760px */
+@media (max-width: 760px) {
+  .filterNav .d-flex1 {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+
+  /* Additional padding and adjustments for smaller screens */
+  .filterNav input[type="checkbox"] {
+    margin-right: 8px;
+  }
+}
+
+@media (max-width: 860px) {
+  .smaller {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .search_input {
+    color: white;
+    border: 0;
+    outline: 0;
+    background: none;
+    width: 280px;
+    caret-color: transparent;
+    line-height: 40px;
+    transition: width 0.4s linear;
+  }
+
+  .searchbar:hover>.search_input {
+    padding: 0 10px;
+    width: 300px;
+    caret-color: red;
+    transition: width 0.4s linear;
+  }
+  
+  .search_icon {
+    display: none;
+  }
+
+  /* Additional padding and adjustments for smaller screens */
+  .filterNav input[type="checkbox"] {
+    margin-right: 8px;
+  }
+}
+
+.rounded-50 {
+  border-radius: 50px;
+}
+
+.btn-dark1 {
+  background-color: rgb(50, 50, 50);
+  color: white;
+}
+.c-cust
+{
+  background-color: rgb(255, 114, 94) !important;
 }

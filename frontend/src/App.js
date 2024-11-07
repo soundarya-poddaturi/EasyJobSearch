@@ -124,7 +124,7 @@ const NavbarWrapper = ({ userId, userRole, setUseId, setUserRole, toggleSidebar,
     
     return (
         <>
-            <button onClick={toggleSidebar} className="btn-toggle bg-dark text-white">
+            <button onClick={toggleSidebar} className="btn-toggle bg-dark  text-white">
                 <i className="fas fa-bars fa-lg p-4 bg-dark"></i>
             </button>
             

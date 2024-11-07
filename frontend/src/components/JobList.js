@@ -1,47 +1,40 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import JobCard from './JobCard';
+import FilterNav from './FilterNav';
 
 const JobList = ({ isSidebarOpen }) => {
     const [jobs, setJobs] = useState([]);
-    const [filteredJobs, setFilteredJobs] = useState([]);
     const [appliedJobs, setAppliedJobs] = useState([]);
+    const [filteredJobs, setFilteredJobs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [isFilterOpen, setIsFilterOpen] = useState(false);
 
-    // Filter states
     const [selectedRoles, setSelectedRoles] = useState([]);
     const [selectedCompanies, setSelectedCompanies] = useState([]);
     const [salaryRange, setSalaryRange] = useState({ min: 0, max: 0 });
-
-    // Options for filters
-    const [roleOptions, setRoleOptions] = useState([]);
-    const [companyOptions, setCompanyOptions] = useState([]);
+    const [searchTerm, setSearchTerm] = useState('');
 
     const studentId = localStorage.getItem('student_id');
+    const roleOptions = [...new Set(jobs.map(job => job.job_role))];
+    const companyOptions = [...new Set(jobs.map(job => job.company.name))];
 
     useEffect(() => {
         const fetchJobs = async () => {
             try {
-                const jobResponse = await axios.get(`${process.env.REACT_APP_COMPANY_URL}/jobs/`);
-                const jobData = jobResponse.data;
-                setJobs(jobData);
-                setFilteredJobs(jobData); // Initialize with all jobs
-
-                // Extract unique roles and company names based on your data structure
-                const roles = [...new Set(jobData.map(job => job.job_role))];
-                const companies = [...new Set(jobData.map(job => job.company.name))];
-
-                setRoleOptions(roles);
-                setCompanyOptions(companies);
+                const jobResponse = await axios.get(`http://localhost:8000/company/jobs/`);
+                console.log(jobResponse.data)
+                setJobs(jobResponse.data);
+                setFilteredJobs(jobResponse.data);
 
                 if (studentId) {
-                    const applicationIdsResponse = await axios.get(`${process.env.REACT_APP_COMPANY_URL}/applications/student/${studentId}/`);
+                    const applicationIdsResponse = await axios.get(`http://localhost:8000/company/applications/student/${studentId}/`);
                     const applicationIds = applicationIdsResponse.data.application_ids;
 
                     const appliedJobIds = await Promise.all(
                         applicationIds.map(async (appId) => {
-                            const appResponse = await axios.get(`${process.env.REACT_APP_COMPANY_URL}/applications/${appId}/`);
+                            const appResponse = await axios.get(`http://localhost:8000/company/applications/${appId}/`);
                             return appResponse.data.job_id;
                         })
                     );
@@ -74,102 +67,104 @@ const JobList = ({ isSidebarOpen }) => {
         setSalaryRange({ min, max });
     };
 
+    const handleSearchChange = (e) => {
+        setSearchTerm(e.target.value);
+    };
+
+    const applyFilters = () => {
+        let updatedJobs = jobs;
+
+        // Apply role filter
+        if (selectedRoles.length > 0) {
+            updatedJobs = updatedJobs.filter(job => selectedRoles.includes(job.job_role));
+        }
+
+        // Apply company filter
+        if (selectedCompanies.length > 0) {
+            updatedJobs = updatedJobs.filter(job => selectedCompanies.includes(job.company?.name));
+        }
+
+        // Apply salary filter
+        if (salaryRange.min || salaryRange.max) {
+            updatedJobs = updatedJobs.filter(job => {
+                return job.salary >= salaryRange.min && (salaryRange.max === 0 || job.salary <= salaryRange.max);
+            });
+        }
+
+        // Apply search term filter
+        if (searchTerm) {
+            const searchLower = searchTerm.toLowerCase();
+            updatedJobs = updatedJobs.filter(job => 
+                (job.job_role?.toLowerCase() || '').includes(searchLower) ||
+                (job.company?.name?.toLowerCase() || '').includes(searchLower) ||
+                (job.title?.toLowerCase() || '').includes(searchLower) ||
+                (job.description?.toLowerCase() || '').includes(searchLower) ||
+                (job.skills?.toLowerCase() || '').includes(searchLower) ||
+                (job.location?.toLowerCase() || '').includes(searchLower)
+            );
+        }
+
+        setFilteredJobs(updatedJobs);
+    };
+
     useEffect(() => {
-        const applyFilters = () => {
-            let updatedJobs = jobs;
-
-            if (selectedRoles.length > 0) {
-                updatedJobs = updatedJobs.filter(job => selectedRoles.includes(job.job_role));
-            }
-
-            if (selectedCompanies.length > 0) {
-                updatedJobs = updatedJobs.filter(job => selectedCompanies.includes(job.company.name));
-            }
-
-            if (salaryRange.min || salaryRange.max) {
-                updatedJobs = updatedJobs.filter(job => {
-                    return job.salary >= salaryRange.min && (salaryRange.max === 0 || job.salary <= salaryRange.max);
-                });
-            }
-
-            setFilteredJobs(updatedJobs);
-        };
-
         applyFilters();
-    }, [selectedRoles, selectedCompanies, salaryRange, jobs]);
+    }, [selectedRoles, selectedCompanies, salaryRange, searchTerm, jobs]);
 
     if (loading) return <div>Loading...</div>;
     if (error) return <div className="alert alert-danger">{error}</div>;
 
     return (
         <div className="container mt-5">
-            <h2 className="text-center mb-4">Jobs</h2>
-            <div className="row">
-                <div className="col-md-3">
-                    {/* Filter Sidebar */}
-                    <h4>Filters</h4>
-                    <div className="mb-3">
-                        <h5>Job Role</h5>
-                        {roleOptions.length > 0 ? roleOptions.map(role => (
-                            <div key={role}>
+            <div className="row justify-content-center ">
+                <div className=' col-md-9 d-flex justify-content-between  align-items-center  my-5 smaller'>
+                    <div class="h-100">
+                        <div class="d-flex justify-content-center h-100">
+                            <div class="searchbar shadow">
                                 <input
-                                    type="checkbox"
-                                    checked={selectedRoles.includes(role)}
-                                    onChange={() => handleRoleChange(role)}
+                                    class="search_input"
+                                    type="text"
+                                    placeholder="Search..."
+                                    value={searchTerm}
+                                    onChange={handleSearchChange}
                                 />
-                                <label>{role}</label>
+                                <a href="#" class="search_icon"><i class="fas fa-search"></i></a>
                             </div>
-                        )) : <p>No roles available</p>}
-                    </div>
-                    <div className="mb-3">
-                        <h5>Company</h5>
-                        {companyOptions.length > 0 ? companyOptions.map(company => (
-                            <div key={company}>
-                                <input
-                                    type="checkbox"
-                                    checked={selectedCompanies.includes(company)}
-                                    onChange={() => handleCompanyChange(company)}
-                                />
-                                <label>{company}</label>
-                            </div>
-                        )) : <p>No companies available</p>}
-                    </div>
-                    <div className="mb-3">
-                        <h5>Salary Range</h5>
-                        <div>
-                            <input
-                                type="number"
-                                placeholder="Min Salary"
-                                onChange={(e) => handleSalaryChange(Number(e.target.value), salaryRange.max)}
-                            />
-                            <input
-                                type="number"
-                                placeholder="Max Salary"
-                                onChange={(e) => handleSalaryChange(salaryRange.min, Number(e.target.value))}
-                            />
                         </div>
                     </div>
-                </div>
-                
-                <div className="col-md-9">
-                    {/* Job List */}
-                    {filteredJobs.length > 0 ? (
-                        <div className="row justify-content-center">
-                            {filteredJobs.map((job) => (
-                                <JobCard
-                                    key={job.id}
-                                    job={job}
-                                    isApplied={appliedJobs.includes(job.id)}
-                                    onApplyClick={() => console.log(`Applying for job ${job.id}`)}
-                                    isSidebarOpen={isSidebarOpen}
-                                />
-                            ))}
-                        </div>
-                    ) : (
-                        <p>No jobs found.</p>
-                    )}
+                    <div><button className='border-0 fs-3 btn-dark1 shadow rounded-50' onClick={() => setIsFilterOpen(true)}><i className='fas fa-filter p-4'></i></button></div>
+                    
                 </div>
             </div>
+
+            {filteredJobs.length > 0 ? (
+                <div className="row justify-content-center">
+                    {filteredJobs.map((job) => (
+                        <JobCard
+                            key={job.id}
+                            job={job}
+                            isApplied={appliedJobs.includes(job.id)}
+                            onApplyClick={() => console.log(`Applying for job ${job.id}`)}
+                            isSidebarOpen={isSidebarOpen}
+                        />
+                    ))}
+                </div>
+            ) : (
+                <p>No jobs found.</p>
+            )}
+
+            <FilterNav
+                isOpen={isFilterOpen}
+                onClose={() => setIsFilterOpen(false)}
+                roleOptions={roleOptions}
+                companyOptions={companyOptions}
+                selectedRoles={selectedRoles}
+                selectedCompanies={selectedCompanies}
+                salaryRange={salaryRange}
+                onRoleChange={handleRoleChange}
+                onCompanyChange={handleCompanyChange}
+                onSalaryChange={handleSalaryChange}
+            />
         </div>
     );
 };
