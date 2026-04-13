@@ -1,2 +1,6 @@
 venv/
 frontend/node_modules/
+
+# Secrets — never commit
+.env
+frontend/.env
